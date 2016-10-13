@@ -5,12 +5,12 @@ from tinydb import TinyDB
 import unittest
 
 
-class StorageTestHaiku(unittest.TestCase):
+class StorageHaikuTest(unittest.TestCase):
     store = None
 
     @classmethod
     def setUpClass(cls):
-        cls.store = Persistence(TinyDB(storage=MemoryStorage))
+        cls.store = Persistence(db=TinyDB(storage=MemoryStorage))
 
     @classmethod
     def tearDownClass(cls):

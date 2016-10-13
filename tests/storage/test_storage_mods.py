@@ -5,12 +5,12 @@ from tinydb import TinyDB
 import unittest
 
 
-class StorageTestMods(unittest.TestCase):
+class StorageModsTest(unittest.TestCase):
     store = None
 
     @classmethod
     def setUpClass(cls):
-        cls.store = Persistence(TinyDB(storage=MemoryStorage))
+        cls.store = Persistence(db=TinyDB(storage=MemoryStorage))
 
     @classmethod
     def tearDownClass(cls):
@@ -45,7 +45,7 @@ class StorageTestMods(unittest.TestCase):
         self.store.put_mod('førl')
         self.store.put_mod('pep')
         self.assertEqual(self.store.is_mod('pep'), True)
-        self.assertEqual(self.store.is_mod('perp'), True)
+        self.assertEqual(self.store.is_mod('perp'), False)
 
     def test_is_not_mod_after_removed(self):
         self.store.put_mod('førl')

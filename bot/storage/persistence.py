@@ -8,7 +8,22 @@ class Persistence:
         self.db = db
         self.haiku = self.db.table('haiku')
         self.mods = self.db.table('mod')
+        self.checked = self.db.table('checked_posts')
         self.max_haiku_id = len(self.haiku)
+
+    def put_checked_id(self, cid):
+        if len(self.checked) < 1:
+            self.checked.insert({'cids': [cid]})
+            return
+
+        checked_ids = self.checked.get(eid=1)['cids']
+        self.checked.update({'cids': [*checked_ids, cid]}, eids=[1])
+
+    def is_checked(self, cid):
+        if len(self.checked) < 1:
+            return False
+
+        return cid in self.checked.get(eid=1)['cids']
 
     def put_haiku(self, haiku, author, posted=True):
         self.haiku.insert(
@@ -76,3 +91,4 @@ class Persistence:
     def _purge(self):
         self.haiku.purge()
         self.mods.purge()
+        self.checked.purge()

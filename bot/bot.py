@@ -7,6 +7,7 @@ import requests
 from slackclient import SlackClient
 
 from bot.storage.persistence import Persistence
+from bot.connectivity.stash import Stash
 
 READ_WEBSOCKET_DELAY = 1
 
@@ -17,6 +18,7 @@ class Commands(Enum):
     LIST_MOD = 'list mod'
     TWEET = 'tweet'
     DANIEL = 'daniel'
+    LAST_HAIKU = 'show last'
 
     @staticmethod
     def values():
@@ -25,12 +27,22 @@ class Commands(Enum):
 
 class Haikubot:
     def __init__(self, api_key, bot_id):
-        self.client = SlackClient(api_key)
+        self.client = SlackClient(api_key)  # TODO pull this out to a seperate class
         self.store = Persistence()
+        self.stash = Stash(self.post_haiku, self.store)
+
         self.id = bot_id
         self._at = '<@' + bot_id + '>'
         self.death = {'died': False, 'channel': None}
         self.seconds = 0
+
+        self.stash.start()
+
+    def post_haiku(self, haiku, author, channel='haikubot-test'):
+        haiku_to_post = haiku + " - " + author + "\n"
+        response = self.client.api_call("chat.postMessage", channel=channel, text=haiku_to_post, as_user=True)
+        success = response is not None
+        self.store.put_haiku(haiku, author, posted=success)
 
     def run(self):
         try:
@@ -52,6 +64,9 @@ class Haikubot:
                         self.seconds = 0
             else:
                 print("Connection failed. Invalid Slack token or bot ID?")
+        except KeyboardInterrupt:
+            self.stash.stop()
+            print("Trying to stop gracefully..")
         except:
             traceback.print_last()
             self.death['died'] = True
@@ -80,6 +95,10 @@ class Haikubot:
             response = "Current mods are: " + str(self.store.get_mods())
         if command.startswith(Commands.DANIEL.value):
             response = "Daniel is a focker"
+        if command.startswith(Commands.LAST_HAIKU.value):
+            newest = self.store.get_newest()
+            self.post_haiku(newest['haiku'], newest['author'], channel)
+            return
 
         self.client.api_call("chat.postMessage", channel=channel,
                              text=response, as_user=True)
