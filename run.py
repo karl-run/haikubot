@@ -1,5 +1,5 @@
 import os
-from bot import Haikubot
+from bot.bot import Haikubot
 
 VERSION = 'v0.0.1'
 

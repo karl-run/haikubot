@@ -4,8 +4,8 @@ from tinydb import TinyDB, where
 
 
 class Persistence:
-    def __init__(self):
-        self.db = TinyDB('store.json')
+    def __init__(self, db=TinyDB('store.json')):
+        self.db = db
         self.haiku = self.db.table('haiku')
         self.mods = self.db.table('mod')
         self.max_haiku_id = len(self.haiku)
@@ -19,6 +19,7 @@ class Persistence:
                 'posted': posted
             }
         )
+        self.max_haiku_id += 1
 
     def get_unposted(self):
         return self.haiku.search(where('posted') == False)
@@ -62,13 +63,16 @@ class Persistence:
         return username in self.mods.get(eid=1)['mods']
 
     def get_mods(self):
+        none = False
         if len(self.mods) < 1:
+            none = True
+
+        mods = self.mods.get(eid=1)
+        if not mods or none:
             return ["There are currently no mods"]
-        return self.mods.get(eid=1)['mods']
+        else:
+            return mods['mods']
 
     def _purge(self):
         self.haiku.purge()
         self.mods.purge()
-
-    def printmods(self):
-        print(self.mods.all())

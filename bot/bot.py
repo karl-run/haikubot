@@ -1,10 +1,12 @@
-from slackclient import SlackClient
-from persistence import Persistence
-
-import time, traceback
-import requests
 import json
+import time
+import traceback
 from enum import Enum
+
+import requests
+from slackclient import SlackClient
+
+from bot.storage.persistence import Persistence
 
 READ_WEBSOCKET_DELAY = 1
 
