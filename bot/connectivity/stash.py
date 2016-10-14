@@ -33,7 +33,7 @@ def fetch(url):
 class Stash(Thread):
     def __init__(self, post_func, store):
         Thread.__init__(self)
-        self.alive = True
+        self.alive = False
         self.post_func = post_func
         self.store = store
         self.urls = make_urls()
@@ -57,8 +57,11 @@ class Stash(Thread):
                     time.sleep(1)
 
     def start(self, live=True):
-        Thread.start(self)
         self.alive = live
+        Thread.start(self)
 
     def stop(self):
         self.alive = False
+
+    def is_alive(self):
+        return self.alive

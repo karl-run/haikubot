@@ -4,6 +4,7 @@ from enum import Enum
 
 import requests
 
+import config
 from bot.connectivity.slack import Slack
 from bot.connectivity.stash import Stash
 from bot.storage.persistence import Persistence
@@ -37,7 +38,9 @@ class Haikubot:
     def run(self):
         try:
             if self.slack.connect():
-                self.stash.start()
+                if not self.stash.is_alive():
+                    self.stash.start()
+
                 print("haikubot connected and running!")
                 if self.death['died'] and self.death['channel']:
                     response = "Fock you broke me. Don't do that again."
@@ -63,6 +66,7 @@ class Haikubot:
 
                     time.sleep(READ_WEBSOCKET_DELAY)
             else:
+                # TODO add logging
                 raise ValueError('Unable to connect, bad token or bot ID?')
 
         except KeyboardInterrupt:
@@ -70,7 +74,11 @@ class Haikubot:
             print("Trying to stop gracefully..")
         except ValueError:
             raise ValueError  # We want it to die
-        except:
+        except Exception:
+            if config.DEBUG:
+                raise Exception
+
+            # TODO add logging
             self.death['died'] = True
             self.run()
 
@@ -99,6 +107,10 @@ class Haikubot:
             response = "Daniel is a focker"
         if command.startswith(Commands.LAST_HAIKU.value):
             newest = self.store.get_newest()
+            if newest is None:
+                self.slack.post_message("There are no haikus!")
+                return
+
             success = self.slack.post_haiku(newest['haiku'], newest['author'], channel)
             self.store.put_haiku(newest['haiku'], newest['author'], posted=success)
             return
