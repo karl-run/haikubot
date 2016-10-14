@@ -1,13 +1,12 @@
 import json
 import time
-import traceback
 from enum import Enum
 
 import requests
-from slackclient import SlackClient
 
-from bot.storage.persistence import Persistence
+from bot.connectivity.slack import Slack
 from bot.connectivity.stash import Stash
+from bot.storage.persistence import Persistence
 
 READ_WEBSOCKET_DELAY = 1
 
@@ -27,48 +26,52 @@ class Commands(Enum):
 
 class Haikubot:
     def __init__(self, api_key, bot_id):
-        self.client = SlackClient(api_key)  # TODO pull this out to a seperate class
+        self.slack = Slack(api_key)
         self.store = Persistence()
-        self.stash = Stash(self.post_haiku, self.store)
+        self.stash = Stash(self.slack.post_haiku, self.store)
 
-        self.id = bot_id
         self._at = '<@' + bot_id + '>'
         self.death = {'died': False, 'channel': None}
         self.seconds = 0
 
         self.stash.start()
 
-    def post_haiku(self, haiku, author, channel='haikubot-test'):
-        haiku_to_post = haiku + " - " + author + "\n"
-        response = self.client.api_call("chat.postMessage", channel=channel, text=haiku_to_post, as_user=True)
-        success = response is not None
-        self.store.put_haiku(haiku, author, posted=success)
-
     def run(self):
         try:
-            if self.client.rtm_connect():
+            if self.slack.connect():
                 print("haikubot connected and running!")
                 if self.death['died'] and self.death['channel']:
                     response = "Fock you broke me. Don't do that again."
-                    self.client.api_call("chat.postMessage", channel=self.death['channel'], text=response, as_user=True)
+                    self.slack.post_message(response, self.death['channel'])
                 while True:
-                    command, channel, user = self._parse_slack_input(self.client.rtm_read())
+                    try:
+                        command, channel, user = self._parse_slack_output(self.slack.read())
+                    except TimeoutError:
+                        print('Timed out')
+                        continue
+
                     if command and channel and user:
                         self.death['channel'] = channel
                         self._handle_action(command, channel, user)
-                    time.sleep(READ_WEBSOCKET_DELAY)
+
                     self.death['channel'] = None
+
+                    # TODO temporary
                     self.seconds += 1
                     if self.seconds > 3600:
                         self.post_joke()
                         self.seconds = 0
+
+                    time.sleep(READ_WEBSOCKET_DELAY)
             else:
-                print("Connection failed. Invalid Slack token or bot ID?")
+                raise ValueError('Unable to connect, bad token or bot ID?')
+
         except KeyboardInterrupt:
             self.stash.stop()
             print("Trying to stop gracefully..")
+        except ValueError:
+            raise ValueError  # We want it to die
         except:
-            traceback.print_last()
             self.death['died'] = True
             self.run()
 
@@ -97,23 +100,24 @@ class Haikubot:
             response = "Daniel is a focker"
         if command.startswith(Commands.LAST_HAIKU.value):
             newest = self.store.get_newest()
-            self.post_haiku(newest['haiku'], newest['author'], channel)
+            success = self.slack.post_haiku(newest['haiku'], newest['author'], channel)
+            self.store.put_haiku(newest['haiku'], newest['author'], posted=success)
             return
 
-        self.client.api_call("chat.postMessage", channel=channel,
-                             text=response, as_user=True)
+        self.slack.post_message(response, channel)
 
-    def _parse_slack_input(self, slack_rtm_output):
+    def _parse_slack_output(self, slack_rtm_output):
         output_list = slack_rtm_output
         if output_list and len(output_list) > 0:
             for output in output_list:
                 if output and 'text' in output and self._at in output['text']:
-                    return output['text'].split(self._at)[1].strip().lower(), output[
-                        'channel'], self.client.server.users.find(output['user'])
+                    return output['text'].split(self._at)[1].strip().lower(), \
+                           output['channel'], \
+                           self.slack.get_username(output['user'])
         return None, None, None
 
     def post_joke(self):
         url = "http://tambal.azurewebsites.net/joke/random"
         response = requests.get(url)
         parsed = json.loads(response.text)['joke']
-        self.client.api_call("chat.postMessage", channel='haikubot-test', text=parsed, as_user=True)
+        self.slack.post_message(parsed)
