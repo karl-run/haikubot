@@ -29,7 +29,7 @@ class Haikubot:
     def __init__(self, api_key, bot_id):
         self.slack = Slack(api_key)
         self.store = Persistence()
-        self.stash = Stash(self.slack.post_haiku, self.store)
+        self.stash = Stash(self.post_and_store_haiku, self.store)
 
         self._at = '<@' + bot_id + '>'
         self.death = {'died': False, 'channel': None}
@@ -82,6 +82,10 @@ class Haikubot:
             self.death['died'] = True
             self.run()
 
+    def post_and_store_haiku(self, haiku, author):
+        success = self.slack.post_haiku(haiku, author)
+        self.store.put_haiku(haiku, author, posted=success)
+
     def _handle_action(self, command, channel, action_user):
         response = "Invalid command. Currently supported commands: " + str(Commands.values())
 
@@ -111,8 +115,7 @@ class Haikubot:
                 self.slack.post_message("There are no haikus!")
                 return
 
-            success = self.slack.post_haiku(newest['haiku'], newest['author'], channel)
-            self.store.put_haiku(newest['haiku'], newest['author'], posted=success)
+            self.slack.post_haiku(newest['haiku'], newest['author'], channel)
             return
 
         self.slack.post_message(response, channel)
