@@ -1,11 +1,33 @@
 import json, time
 from threading import Thread
 import requests
+import config
 
 import bot.connectivity.haiku_parser as parser
 
-URL = "bot/connectivity/example_stash.json"
-WAIT = 2
+
+def make_urls():
+    flat_list = []
+    url = config.STASH_URL if config.STASH_URL[len(config.STASH_URL) - 1] == '/' else config.STASH_URL + '/'
+    for project in config.STASH_REPOSITORIES:
+        for repo in project['REPOSITORIES']:
+            flat_list.append(
+                "{}rest/api/1.0/projects/{}/repos/{}/pull-requests".format(url, project['REPO_KEY'], repo)
+            )
+
+    return flat_list
+
+
+def faux_response(url):
+    return open(config.DEBUG_URL, 'r').read()
+
+
+def fetch(url):
+    if config.DEBUG:
+        requests.get = faux_response  # Override get so we can serve a file
+
+    response = requests.get(url)  # TODO add auth
+    return json.loads(response)
 
 
 class Stash(Thread):
@@ -14,17 +36,25 @@ class Stash(Thread):
         self.alive = True
         self.post_func = post_func
         self.store = store
+        self.urls = make_urls()
 
     def run(self):
         while self.alive:
-            result = self.fetch()
-            parsed = parser.parse_stash_response(result, self.store)
+            for url in self.urls:
+                try:
+                    result = fetch(url)
+                except OSError:
+                    print('Server not responding: ' + url)  # TODO add logging
+                    continue
 
-            for haiku in parsed:
-                self.post_func(haiku['haiku'], haiku['author'])
+                parsed = parser.parse_stash_response(result, self.store)
+
+                for haiku in parsed:
+                    self.post_func(haiku['haiku'], haiku['author'])
 
             if self.alive:
-                time.sleep(WAIT)
+                for _ in range(config.STASH_POLL_TIME):
+                    time.sleep(1)
 
     def start(self, live=True):
         Thread.start(self)
@@ -32,8 +62,3 @@ class Stash(Thread):
 
     def stop(self):
         self.alive = False
-
-    def fetch(self):
-        # TODO replace with actual REST-call
-        response = open(URL, 'r').read()
-        return json.loads(response)

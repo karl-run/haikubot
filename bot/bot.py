@@ -34,11 +34,10 @@ class Haikubot:
         self.death = {'died': False, 'channel': None}
         self.seconds = 0
 
-        self.stash.start()
-
     def run(self):
         try:
             if self.slack.connect():
+                self.stash.start()
                 print("haikubot connected and running!")
                 if self.death['died'] and self.death['channel']:
                     response = "Fock you broke me. Don't do that again."
