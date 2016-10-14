@@ -1,8 +1,5 @@
-import json
 import time
 from enum import Enum
-
-import requests
 
 import config
 from bot.connectivity.slack import Slack
@@ -33,7 +30,6 @@ class Haikubot:
 
         self._at = '<@' + bot_id + '>'
         self.death = {'died': False, 'channel': None}
-        self.seconds = 0
 
     def run(self):
         try:
@@ -57,12 +53,6 @@ class Haikubot:
                         self._handle_action(command, channel, user)
 
                     self.death['channel'] = None
-
-                    # TODO temporary
-                    self.seconds += 1
-                    if self.seconds > 3600:
-                        self.post_joke()
-                        self.seconds = 0
 
                     time.sleep(READ_WEBSOCKET_DELAY)
             else:
@@ -129,9 +119,3 @@ class Haikubot:
                            output['channel'], \
                            self.slack.get_username(output['user'])
         return None, None, None
-
-    def post_joke(self):
-        url = "http://tambal.azurewebsites.net/joke/random"
-        response = requests.get(url)
-        parsed = json.loads(response.text)['joke']
-        self.slack.post_message(parsed)
