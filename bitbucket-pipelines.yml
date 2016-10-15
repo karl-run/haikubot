@@ -5,5 +5,4 @@ pipelines:
     - step:
         script:
           - pip install -r requirements.txt
-          - pip --version
-          - py.test
+          - py.test --cov=./ --cov-report term-missing

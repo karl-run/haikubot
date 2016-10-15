@@ -1,3 +1,4 @@
+import logging
 import os
 
 """
@@ -12,6 +13,7 @@ list as needed.
 BOT_ID is used to identify bot in commands.
 """
 
+# User provided details
 API_KEY = os.environ.get('HAIKUBOT_API_KEY')
 BOT_ID = os.environ.get('HAIKUBOT_ID')
 STASH_URL = 'http://stash.example.com'
@@ -24,5 +26,19 @@ STASH_REPOSITORIES = [
 STASH_POLL_TIME = 2  # Seconds
 # TODO add auth
 
-DEBUG = False
+# Database
+DATABASE_PATH = './'
+
+# Debugging
+DEBUG = True
 DEBUG_URL = 'bot/connectivity/example_stash.json'
+
+# Logging
+LOG_PATH = ''  # Empty for console output
+LOG_LEVEL = logging.INFO  # debug, info, warning, error, critical
+
+logging.basicConfig(
+    level=LOG_LEVEL,
+    filename=LOG_PATH,
+    format='%(asctime)s %(name)s %(levelname)s: %(message)s'
+)

@@ -1,3 +1,4 @@
+import logging
 import time
 from enum import Enum
 
@@ -37,7 +38,7 @@ class Haikubot:
                 if not self.stash.is_alive():
                     self.stash.start()
 
-                print("haikubot connected and running!")
+                logging.info("haikubot connected and running!")
                 if self.death['died'] and self.death['channel']:
                     response = "Fock you broke me. Don't do that again."
                     self.slack.post_message(response, self.death['channel'])
@@ -45,7 +46,7 @@ class Haikubot:
                     try:
                         command, channel, user = self._parse_slack_output(self.slack.read())
                     except TimeoutError:
-                        print('Timed out')
+                        logging.error('Timed out while reading from Slack.')
                         continue
 
                     if command and channel and user:
@@ -56,19 +57,20 @@ class Haikubot:
 
                     time.sleep(READ_WEBSOCKET_DELAY)
             else:
-                # TODO add logging
+                logging.error('Connection error, not able to connect to Slack.')
                 raise ValueError('Unable to connect, bad token or bot ID?')
 
         except KeyboardInterrupt:
             self.stash.stop()
-            print("Trying to stop gracefully..")
+            logging.info("Stop has been called, trying to stop gracefully.")
         except ValueError:
             raise ValueError  # We want it to die
         except Exception:
             if config.DEBUG:
+                logging.critical('config.DEBUG is set, crashing on failure.')
                 raise Exception
 
-            # TODO add logging
+            logging.error('Something unexpected happened, trying to restart bot.' + str(Exception))
             self.death['died'] = True
             self.run()
 
@@ -77,9 +79,11 @@ class Haikubot:
         self.store.put_haiku(haiku, author, posted=success)
 
     def _handle_action(self, command, channel, action_user):
+        logging.debug('Command {} recieved from channel {} by user {}'.format(command, channel, action_user))
         response = "Invalid command. Currently supported commands: " + str(Commands.values())
 
         if self.store.is_mod(action_user):
+            logging.debug('User has mod rights')
             if command.startswith(Commands.ADD_MOD.value):
                 user = command.replace(Commands.ADD_MOD.value, '').strip()
                 self.store.put_mod(user)

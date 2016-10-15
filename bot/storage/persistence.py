@@ -1,10 +1,15 @@
+import logging
 from datetime import datetime
 
 from tinydb import TinyDB, where
 
+import config
+
+db_location = 'store.json' if not config.DATABASE_PATH else config.DATABASE_PATH + 'store.json'
+
 
 class Persistence:
-    def __init__(self, db=TinyDB('store.json')):
+    def __init__(self, db=TinyDB(db_location)):
         self.db = db
         self.haiku = self.db.table('haiku')
         self.mods = self.db.table('mod')
@@ -16,6 +21,7 @@ class Persistence:
             self.checked.insert({'cids': [cid]})
             return
 
+        logging.debug('Adding id {} to checked posts'.format(cid))
         checked_ids = self.checked.get(eid=1)['cids']
         self.checked.update({'cids': [*checked_ids, cid]}, eids=[1])
 
@@ -26,6 +32,7 @@ class Persistence:
         return cid in self.checked.get(eid=1)['cids']
 
     def put_haiku(self, haiku, author, posted=True):
+        logging.debug('Adding inserting haiku from user {}'.format(author))
         self.haiku.insert(
             {
                 'haiku': haiku,
@@ -43,6 +50,7 @@ class Persistence:
         if type(ids) is not list:
             ids = [ids]
 
+        logging.debug('Setting {} as posted={}'.format(str(ids), posted))
         self.haiku.update({'posted': posted}, eids=ids)
 
     def get(self, eid):
@@ -56,6 +64,7 @@ class Persistence:
             self.mods.insert({'mods': [username]})
             return
 
+        logging.debug('Adding {} as mod'.format(username))
         previous_mods = self.mods.get(eid=1)['mods']
         self.mods.update({'mods': [*previous_mods, username]}, eids=[1])
 
@@ -65,6 +74,7 @@ class Persistence:
             self.mods.remove(eids=[1])
             return
 
+        logging.debug('Removing {} as mod'.format(username))
         previous_mods.remove(username)
         self.mods.update({'mods': [*previous_mods]}, eids=[1])
 
@@ -89,6 +99,7 @@ class Persistence:
             return mods['mods']
 
     def _purge(self):
+        logging.critical('Deleting all tables')
         self.haiku.purge()
         self.mods.purge()
         self.checked.purge()

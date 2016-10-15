@@ -1,4 +1,5 @@
 import json, time
+import logging
 from threading import Thread
 import requests
 import config
@@ -15,6 +16,7 @@ def make_urls():
                 "{}rest/api/1.0/projects/{}/repos/{}/pull-requests".format(url, project['REPO_KEY'], repo)
             )
 
+    logging.debug('URLs configured: ' + str(flat_list))
     return flat_list
 
 
@@ -23,9 +25,6 @@ def faux_response(url):
 
 
 def fetch(url):
-    if config.DEBUG:
-        requests.get = faux_response  # Override get so we can serve a file
-
     response = requests.get(url)  # TODO add auth
     return json.loads(response)
 
@@ -38,13 +37,17 @@ class Stash(Thread):
         self.store = store
         self.urls = make_urls()
 
+        if config.DEBUG:
+            logging.critical('config.DEBUG is set, serving file instead of GET requests')
+            requests.get = faux_response  # Override get so we can serve a file
+
     def run(self):
         while self.alive:
             for url in self.urls:
                 try:
                     result = fetch(url)
                 except OSError:
-                    print('Server not responding: ' + url)  # TODO add logging
+                    logging.error('Server not responding: ' + url)
                     continue
 
                 parsed = parser.parse_stash_response(result, self.store)

@@ -1,16 +1,22 @@
+import logging
+
+
 def parse_stash_response(response, store=None):
+    logging.debug('Parsing stash response: ' + str(response))
     parsed_haikus = []
 
     for val in response['values']:
         if store is not None:
             if store.is_checked(val['id']):
+                logging.debug('Response {} has been parsed before, skipping'.format(val['id']))
                 continue
             store.put_checked_id(val['id'])
 
         if is_haiku(val['description']):
             parsed_haikus.append(desc_to_haiku(val['description'], val['author']))
+            logging.debug('Found an haiku: ' + val['description'])
         else:
-            print('Not an haiku: ' + val['description'])
+            logging.debug('Not an haiku: ' + val['description'])
 
     return parsed_haikus
 
