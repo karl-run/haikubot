@@ -5,4 +5,4 @@ pipelines:
     - step:
         script:
           - pip install -r requirements.txt
-          - py.test --cov=./ --cov-report term-missing
+          - py.test --cov=./bot --cov-report term-missing --cov-fail-under 40

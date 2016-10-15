@@ -30,3 +30,6 @@ class StorageModsTest(unittest.TestCase):
         self.assertTrue(self.store.is_checked('699'))
         self.assertTrue(self.store.is_checked('12'))
         self.assertTrue(self.store.is_checked('699292'))
+
+    def test_is_checked_empty(self):
+        self.assertFalse(self.store.is_checked('69'))

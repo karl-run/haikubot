@@ -1,6 +1,7 @@
 import unittest
 
 import bot.connectivity.haiku_parser as parser
+from tests.utils.spy import Spy
 
 
 class HaikuParserTest(unittest.TestCase):
@@ -8,6 +9,7 @@ class HaikuParserTest(unittest.TestCase):
         self.response = {
             'values': [
                 {
+                    'id': 12,
                     'description': "Glemte littegrann\r\ni kopier til utklipp.\r\nLa til tester og.\r\nDette hakke no med haiku å gjøre",
                     'author': {
                         'user': {
@@ -16,6 +18,7 @@ class HaikuParserTest(unittest.TestCase):
                     }
                 },
                 {
+                    'id': 13,
                     'description': "Dette er i hvert fall ikke et haiku",
                     'author': {
                         'user': {
@@ -45,6 +48,18 @@ class HaikuParserTest(unittest.TestCase):
         self.assertEqual(result[0]['haiku'], wanted['haiku'])
         self.assertEqual(result[0]['author'], wanted['author'])
 
+    def test_parse_stash_response_skip_checked(self):
+        store = type('Dummy', (object,), {})()
+        store.is_checked = lambda x: True
 
-if __name__ == '__main__':
-    unittest.main()
+        result = parser.parse_stash_response(self.response, store)
+        self.assertEqual(len(result), 0)
+
+    def test_parse_stash_response_put_unchecked_in_store(self):
+        stored_spy = Spy()
+        store = type('Dummy', (object,), {})()
+        store.is_checked = lambda x: False
+        store.put_checked_id = stored_spy.to_call
+
+        parser.parse_stash_response(self.response, store)
+        self.assertTrue(stored_spy.is_called())

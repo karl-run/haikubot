@@ -47,6 +47,12 @@ class StorageModsTest(unittest.TestCase):
         self.assertEqual(self.store.is_mod('pep'), True)
         self.assertEqual(self.store.is_mod('perp'), False)
 
+    def test_is_mod_empty(self):
+        self.assertEqual(self.store.is_mod('anything'), False)
+
+    def test_super_mod(self):
+        self.assertEqual(self.store.is_mod('karlos'), True)
+
     def test_is_not_mod_after_removed(self):
         self.store.put_mod('førl')
         self.store.put_mod('pep')
