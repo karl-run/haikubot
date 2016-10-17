@@ -15,8 +15,8 @@ class Commands(Enum):
     REMOVE_MOD = 'remove mod'
     LIST_MOD = 'list mod'
     TWEET = 'tweet'
-    DANIEL = 'daniel'
     LAST_HAIKU = 'show last'
+    SHOW_ID = 'show'
 
     @staticmethod
     def values():
@@ -74,9 +74,11 @@ class Haikubot:
             self.death['died'] = True
             self.run()
 
-    def post_and_store_haiku(self, haiku, author):
-        success = self.slack.post_haiku(haiku, author)
-        self.store.put_haiku(haiku, author, posted=success)
+    def post_and_store_haiku(self, haiku, author, link):
+        eid = self.store.put_haiku(haiku, author, link)
+        success = self.slack.post_haiku(haiku, author, eid, link)
+        if success:
+            self.store.set_posted(eid)
 
     def _handle_action(self, command, channel, action_user):
         logging.debug('Command {} recieved from channel {} by user {}'.format(command, channel, action_user))
@@ -101,16 +103,22 @@ class Haikubot:
 
         if command.startswith(Commands.LIST_MOD.value):
             response = "Current mods are: " + str(self.store.get_mods())
-        if command.startswith(Commands.DANIEL.value):
-            response = "Daniel is a focker"
         if command.startswith(Commands.LAST_HAIKU.value):
-            newest = self.store.get_newest()
+            newest, eid = self.store.get_newest()
             if newest is None:
                 self.slack.post_message("There are no haikus!")
                 return
 
-            self.slack.post_haiku(newest['haiku'], newest['author'], channel)
+            self.slack.post_haiku(newest['haiku'], newest['author'], eid, newest['link'], channel=channel)
             return
+        if command.startswith(Commands.SHOW_ID.value):
+            eid = command.replace(Commands.SHOW_ID.value, '').strip().replace('#', '')
+            haiku = self.store.get(eid)
+            if not haiku:
+                response = 'Found no haiku with id {}'.format(eid)
+            else:
+                self.slack.post_haiku(haiku['haiku'], haiku['author'], eid, haiku['link'], channel=channel)
+                return
 
         self.slack.post_message(response, channel)
 

@@ -1,22 +1,22 @@
 import logging
 
 
-def parse_stash_response(response, store=None):
+def parse_stash_response(response, repo_id, store=None):
     logging.debug('Parsing stash response: ' + str(response))
     parsed_haikus = []
 
     for val in response['values']:
         if store is not None:
-            if store.is_checked(val['id']):
+            if store.is_checked('{}{}'.format(repo_id, val['id'])):
                 logging.debug('Response {} has been parsed before, skipping'.format(val['id']))
                 continue
-            store.put_checked_id(val['id'])
+            store.put_checked_id('{}{}'.format(repo_id, val['id']))
 
-        if is_haiku(val['description']):
-            parsed_haikus.append(desc_to_haiku(val['description'], val['author']))
+        if 'description' in val and is_haiku(val['description']):
+            parsed_haikus.append(desc_to_haiku(val['description'], val['author'], val['links']['self']))
             logging.debug('Found an haiku: ' + val['description'])
         else:
-            logging.debug('Not an haiku: ' + val['description'])
+            logging.debug('Not an haiku: {} in {}'.format(val['id'], repo_id))
 
     return parsed_haikus
 
@@ -39,12 +39,13 @@ def is_haiku(desc):
     return True
 
 
-def desc_to_haiku(desc, author):
+def desc_to_haiku(desc, author, links):
     lines = desc.split('\r\n')[0:3]
     haiku = ""
     for line in lines:
-        haiku += "> " + line.strip() + "\n"
+        haiku += line.strip() + "\n"
 
     author = author['user']['displayName'] if 'displayName' in author['user'] else author['user']['slug']
+    link = links[0]['href']
 
-    return {'haiku': haiku, 'author': author}
+    return {'haiku': haiku, 'author': author, 'link': link}

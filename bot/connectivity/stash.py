@@ -1,10 +1,13 @@
-import json, time
+import json
 import logging
+import time
 from threading import Thread
+
+import hashlib
 import requests
-import config
 
 import bot.connectivity.haiku_parser as parser
+import config
 
 
 def make_urls():
@@ -25,8 +28,8 @@ def faux_response(url):
 
 
 def fetch(url):
-    response = requests.get(url)  # TODO add auth
-    return json.loads(response)
+    response = requests.get(url, headers=config.STASH_HEADERS, verify=config.SSL_VERIFY)
+    return json.loads(response.text)
 
 
 class Stash(Thread):
@@ -50,10 +53,11 @@ class Stash(Thread):
                     logging.error('Server not responding: ' + url)
                     continue
 
-                parsed = parser.parse_stash_response(result, self.store)
+                url_id = hashlib.md5(url.encode('utf-8')).hexdigest()
+                parsed = parser.parse_stash_response(result, url_id, self.store)
 
                 for haiku in parsed:
-                    self.post_func(haiku['haiku'], haiku['author'])
+                    self.post_func(haiku['haiku'], haiku['author'], haiku['link'])
 
             if self.alive:
                 for _ in range(config.STASH_POLL_TIME):

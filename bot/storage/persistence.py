@@ -31,17 +31,19 @@ class Persistence:
 
         return cid in self.checked.get(eid=1)['cids']
 
-    def put_haiku(self, haiku, author, posted=True):
+    def put_haiku(self, haiku, author, link, posted=False):
         logging.debug('Adding inserting haiku from user {}'.format(author))
-        self.haiku.insert(
+        eid = self.haiku.insert(
             {
                 'haiku': haiku,
                 'author': author,
                 'date': str(datetime.now()),
-                'posted': posted
+                'posted': posted,
+                'link': link
             }
         )
         self.max_haiku_id += 1
+        return eid
 
     def get_unposted(self):
         return self.haiku.search(where('posted') == False)
@@ -54,10 +56,10 @@ class Persistence:
         self.haiku.update({'posted': posted}, eids=ids)
 
     def get(self, eid):
-        return self.haiku.get(eid=eid)
+        return self.haiku.get(eid=int(eid))
 
     def get_newest(self):
-        return self.haiku.get(eid=self.max_haiku_id)
+        return self.haiku.get(eid=self.max_haiku_id), self.max_haiku_id
 
     def put_mod(self, username):
         if len(self.mods) < 1:
