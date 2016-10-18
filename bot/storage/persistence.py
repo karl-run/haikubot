@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 
+from tinydb import Query
 from tinydb import TinyDB, where
 
 import config
@@ -60,6 +61,12 @@ class Persistence:
 
     def get_newest(self):
         return self.haiku.get(eid=self.max_haiku_id), self.max_haiku_id
+
+    def get_by(self, search, num=3):
+        haiku_query = Query()
+        kek = self.haiku.search(haiku_query.author.test(lambda name: search.lower() in name.lower()))
+        print(kek)
+        return self.haiku.search(haiku_query.author.test(lambda name: search.lower() in name.lower()))[0:num]
 
     def put_mod(self, username):
         if len(self.mods) < 1:

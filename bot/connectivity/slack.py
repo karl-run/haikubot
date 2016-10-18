@@ -30,14 +30,15 @@ class Slack:
         return self.sc.api_call("chat.postMessage", channel=channel, as_user=as_user, text=message)
 
     def post_haiku(self, haiku, author, haiku_id, stash_link, channel=config.POST_TO_CHANNEL):
-        haiku_to_post = haiku + " - " + author + "\n"
         title = 'Haiku #{}'.format(haiku_id)
         color = '#' + hex(int(hashlib.md5(author.encode('utf-8')).hexdigest(), 16) % 16777215).replace('0x', '').rjust(6, '0')
         haiku_with_title = [{
-            'fallback': '{}, {}'.format(title, haiku_to_post),
+            'fallback': '{} av {}'.format(title, author),
             'title': 'Haiku #{}'.format(haiku_id),
             'title_link': stash_link,
-            'text': haiku_to_post
+            'color': color,
+            'footer': '- {}'.format(author),
+            'text': haiku
         }]
         logging.info('Posting haiku id {} to channel {}.'.format(haiku_id, channel))
 
