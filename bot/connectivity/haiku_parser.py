@@ -17,22 +17,28 @@ def parse_stash_response(response, repo_id, store=None):
             logging.debug('Found an haiku: ' + val['description'])
         else:
             logging.debug('Not an haiku: {} in {}'.format(val['id'], repo_id))
+            if 'description' in val:
+                logging.debug('Not an haiku: {}'.format(val['description']))
 
     return parsed_haikus
 
 
 def is_haiku(desc):
-    lines = desc.split('\r\n')
+    lines = desc.replace('\r', '').split('\n')
 
     if len(lines) < 3:
+        logging.debug('Less than 3 ({}) lines, not an haiku'.format(len(lines)))
         return False
     if '' in lines[0:3]:
+        logging.debug('One of the first 3 lines empty, not an haiku')
         return False
 
     for line in lines[0:3]:
         if '*' in line:
+            logging.debug('One of the first 3 lines is a list, not an haiku')
             return False
         if len(line) > 50:
+            logging.debug('One of the first 3 lines has length more than 50, not an haiku')
             return False
             # TODO more haiku checks
 
