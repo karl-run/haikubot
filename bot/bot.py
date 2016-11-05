@@ -24,12 +24,13 @@ class Commands(Enum):
 
 
 class Haikubot:
-    def __init__(self, api_key, bot_id):
+    def __init__(self, api_key):
         self.slack = Slack(api_key)
         self.store = Persistence()
         self.stash = Stash(self.post_and_store_haiku, self.store)
+        self.bot_id = self.slack.get_id()
 
-        self._at = '<@' + bot_id + '>'
+        self._at = '<@' + self.bot_id + '>'
         self.death = {'died': False, 'channel': None}
 
     def run(self):

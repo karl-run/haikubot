@@ -15,8 +15,11 @@ BOT_ID is used to identify bot in commands.
 
 # User provided details
 API_KEY = os.environ.get('HAIKUBOT_API_KEY')
-BOT_ID = os.environ.get('HAIKUBOT_ID')
+BOT_NAME = 'haikubot'
+POST_TO_CHANNEL = 'haikubot-test'
 STASH_URL = 'http://stash.example.com'
+STASH_HEADERS = None
+SSL_VERIFY = None
 STASH_REPOSITORIES = [
     {
         'REPO_KEY': 'KEY',
@@ -35,7 +38,7 @@ DEBUG_URL = 'bot/connectivity/example_stash.json'
 
 # Logging
 LOG_PATH = ''  # Empty for console output
-LOG_LEVEL = logging.INFO  # debug, info, warning, error, critical
+LOG_LEVEL = logging.DEBUG  # debug, info, warning, error, critical
 
 logging.basicConfig(
     level=LOG_LEVEL,

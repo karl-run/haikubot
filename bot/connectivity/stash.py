@@ -24,12 +24,7 @@ def make_urls():
 
 
 def faux_response(url):
-    return open(config.DEBUG_URL, 'r').read()
-
-
-def fetch(url):
-    response = requests.get(url, headers=config.STASH_HEADERS, verify=config.SSL_VERIFY)
-    return json.loads(response.text)
+    return json.loads(open(config.DEBUG_URL, 'r').read())
 
 
 class Stash(Thread):
@@ -42,13 +37,13 @@ class Stash(Thread):
 
         if config.DEBUG:
             logging.critical('config.DEBUG is set, serving file instead of GET requests')
-            requests.get = faux_response  # Override get so we can serve a file
+            self.fetch = faux_response  # Override get so we can serve a file
 
     def run(self):
         while self.alive:
             for url in self.urls:
                 try:
-                    result = fetch(url)
+                    result = self.fetch(url)
                 except OSError:
                     logging.error('Server not responding: ' + url)
                     continue
@@ -66,6 +61,10 @@ class Stash(Thread):
     def start(self, live=True):
         self.alive = live
         Thread.start(self)
+
+    def fetch(self, url):
+        response = requests.get(url, headers=config.STASH_HEADERS, verify=config.SSL_VERIFY)
+        return json.loads(response.text)
 
     def stop(self):
         self.alive = False
