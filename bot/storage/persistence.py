@@ -13,7 +13,7 @@ db_location = 'store.json' if not config.DATABASE_PATH else config.DATABASE_PATH
 metadata = MetaData()
 haikus = Table('haiku', metadata,
                Column('id', Integer, primary_key=True),
-               Column('haiku', String),
+               Column('haiku', String, unique=True),
                Column('author', String),
                Column('posted', Boolean),
                Column('date', String),
@@ -21,11 +21,11 @@ haikus = Table('haiku', metadata,
 
 checked = Table('checked_posts', metadata,
                 Column('id', Integer, primary_key=True),
-                Column('stash_id', String))
+                Column('stash_id', String, unique=True))
 
 mods = Table('mods', metadata,
              Column('id', Integer, primary_key=True),
-             Column('username', String))
+             Column('username', String, unique=True))
 
 
 class Persistence:
