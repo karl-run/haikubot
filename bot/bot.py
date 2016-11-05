@@ -2,6 +2,8 @@ import logging
 import time
 from enum import Enum
 
+from sqlalchemy.exc import IntegrityError
+
 import config
 from bot.connectivity.slack import Slack
 from bot.connectivity.stash import Stash
@@ -76,7 +78,12 @@ class Haikubot:
             self.run()
 
     def post_and_store_haiku(self, haiku, author, link):
-        eid = self.store.put_haiku(haiku, author, link)
+        try:
+            eid = self.store.put_haiku(haiku, author, link)
+        except IntegrityError:
+            logging.info('haiku "{}" already exists.'.format(haiku))
+            self.slack.post_message("It seems {} has posted a duplicate haiku.".format(author))
+            return
         success = self.slack.post_haiku(haiku, author, eid, link)
         if success:
             self.store.set_posted(eid)

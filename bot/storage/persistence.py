@@ -79,7 +79,7 @@ class Persistence:
 
         return self.connection.execute(
             select([haikus]).where(haikus.c.id == max_id)
-        ).first()
+        ).first(), max_id
 
     def get_by(self, search, num=3):
         haiku_result = [row for row in self.connection.execute(
