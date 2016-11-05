@@ -17,6 +17,7 @@ BOT_ID is used to identify bot in commands.
 API_KEY = os.environ.get('HAIKUBOT_API_KEY')
 BOT_NAME = 'haikubot'
 POST_TO_CHANNEL = 'haikubot-test'
+SUPER_MOD = 'karlos'
 STASH_URL = 'http://stash.example.com'
 STASH_HEADERS = None
 SSL_VERIFY = None

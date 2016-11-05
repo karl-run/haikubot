@@ -1,6 +1,6 @@
+from sqlalchemy import create_engine
+
 from bot.storage.persistence import Persistence
-from tinydb.storages import MemoryStorage
-from tinydb import TinyDB
 
 import unittest
 
@@ -10,11 +10,11 @@ class StorageModsTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.store = Persistence(db=TinyDB(storage=MemoryStorage))
+        cls.store = Persistence(db=create_engine('sqlite:///:memory:'))
 
     @classmethod
     def tearDownClass(cls):
-        cls.store.db.close()
+        cls.store.connection.close()
 
     def tearDown(self):
         self.store._purge()

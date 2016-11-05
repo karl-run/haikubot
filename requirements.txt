@@ -1,4 +1,5 @@
 slackclient
+sqlalchemy
 tinydb
 pytest
 pytest-cov

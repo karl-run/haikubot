@@ -1,8 +1,8 @@
-from bot.storage.persistence import Persistence
-from tinydb.storages import MemoryStorage
-from tinydb import TinyDB
-
 import unittest
+
+from sqlalchemy import create_engine
+
+from bot.storage.persistence import Persistence
 
 
 class StorageModsTest(unittest.TestCase):
@@ -10,11 +10,11 @@ class StorageModsTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.store = Persistence(db=TinyDB(storage=MemoryStorage))
+        cls.store = Persistence(db=create_engine('sqlite:///:memory:'))
 
     @classmethod
     def tearDownClass(cls):
-        cls.store.db.close()
+        cls.store.connection.close()
 
     def tearDown(self):
         self.store._purge()
@@ -38,7 +38,7 @@ class StorageModsTest(unittest.TestCase):
 
     def test_put_remove_single_mod(self):
         self.store.put_mod('førl')
-        self.store.remove_mod('earl')
+        self.store.remove_mod('førl')
         self.assertEqual(self.store.get_mods(), ['There are currently no mods'])
 
     def test_is_mod(self):

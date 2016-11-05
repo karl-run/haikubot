@@ -14,7 +14,6 @@ class Commands(Enum):
     ADD_MOD = 'add mod'
     REMOVE_MOD = 'remove mod'
     LIST_MOD = 'list mod'
-    TWEET = 'tweet'
     LAST_HAIKU = 'show last'
     SHOW_ID = 'show'
     SHOW_FROM = 'show from'
@@ -91,17 +90,14 @@ class Haikubot:
             if command.startswith(Commands.ADD_MOD.value):
                 user = command.replace(Commands.ADD_MOD.value, '').strip()
                 self.store.put_mod(user)
-                response = user + " added as tweet-mod."
+                response = user + " added as bot mod."
             if command.startswith(Commands.REMOVE_MOD.value):
                 user = command.replace(Commands.REMOVE_MOD.value, '').strip()
                 if self.store.is_mod(user):
                     self.store.remove_mod(user)
-                    response = user + " has been removed as tweet-mod."
+                    response = user + " has been removed as bot mod."
                 else:
-                    response = user + " isn't a tweet-mod."
-            if command.startswith(Commands.TWEET.value):
-                eid = command.replace(Commands.TWEET.value, '').strip()
-                response = "// TODO implement this. But first we need some haikus :) Here's your input: " + eid
+                    response = user + " isn't a bot mod."
 
         if command.startswith(Commands.LIST_MOD.value):
             response = "Current mods are: " + str(self.store.get_mods())
@@ -114,10 +110,6 @@ class Haikubot:
             self.slack.post_haiku(newest['haiku'], newest['author'], eid, newest['link'], channel)
             return
         if command.startswith(Commands.SHOW_FROM.value):
-            if True:
-                self.slack.post_message('Not yet supported', channel)
-                return
-
             clean = command.replace(Commands.SHOW_FROM.value, '').strip()
             if len(clean) < 3:
                 self.slack.post_message('"{}" is not descriptive enough'.format(clean), channel)
@@ -138,7 +130,7 @@ class Haikubot:
 
             if len(haikus) > 0:
                 for h in haikus:
-                    self.slack.post_haiku(h['haiku'], h['author'], 0, h['link'], channel)
+                    self.slack.post_haiku(h['haiku'], h['author'], h['id'], h['link'], channel)
             else:
                 self.slack.post_message('Found no haikus by "{}"'.format(search), channel)
             return
