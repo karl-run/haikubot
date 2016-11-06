@@ -8,7 +8,7 @@ from sqlalchemy.pool import StaticPool
 
 import config
 
-db_location = 'store.json' if not config.DATABASE_PATH else config.DATABASE_PATH + 'haikubot.db'
+db_location = './haikubot.db' if not config.DATABASE_PATH else config.DATABASE_PATH + 'haikubot.db'
 
 metadata = MetaData()
 haikus = Table('haiku', metadata,
@@ -29,9 +29,23 @@ mods = Table('mods', metadata,
 
 
 class Persistence:
-    def __init__(self, db=create_engine('sqlite:///{}'.format(db_location),
-                                        connect_args={'check_same_thread': False},
-                                        poolclass=StaticPool)):
+    def __init__(self, db=None):
+        if db is None:
+            if config.FILE_DB:
+                logging.info('Using file based SQLITE database')
+                db = create_engine('sqlite:///{}'.format(db_location),
+                                   connect_args={'check_same_thread': False},
+                                   poolclass=StaticPool)
+            else:
+                logging.info('Connecting to remote {} database'.format(config.DB_ADAPTER))
+                connection = '{}://{}:{}@{}'.format(config.DB_ADAPTER,
+                                                    config.DB_USER,
+                                                    config.DB_PW,
+                                                    config.DB_URL)
+                db = create_engine(connection, poolclass=StaticPool)
+        else:
+            logging.debug('Database engine provided.')
+
         self.db = db
         metadata.create_all(self.db)
         self.connection = self.db.connect()

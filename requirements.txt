@@ -1,5 +1,6 @@
 slackclient
 sqlalchemy
+psycopg2
 tinydb
 pytest
 pytest-cov

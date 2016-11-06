@@ -31,7 +31,14 @@ STASH_POLL_TIME = 2  # Seconds
 # TODO add auth
 
 # Database
+FILE_DB = True
 DATABASE_PATH = './'
+
+# If FILE_DB is set to false, also provide:
+DB_ADAPTER = 'postgresql'
+DB_URL = 'example.com:5432/haikubot'
+DB_USER = 'haikubot'
+DB_PW = os.environ.get('HAIKUBOT_DB_PW')
 
 # Debugging
 DEBUG = True
