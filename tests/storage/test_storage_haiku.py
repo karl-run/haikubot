@@ -37,9 +37,9 @@ class StorageHaikuTest(unittest.TestCase):
         self.store.put_haiku('This is not a\nBad Boo!\nFakeu', 'Earl the Fester')
         self.store.put_haiku('This is an\nVery Cool\nHaiku3', 'Karl the Tester')
         haiku = self.store.get_newest()
-        self.assertEqual(haiku['haiku'], 'This is an\nVery Cool\nHaiku3')
-        self.assertEqual(haiku['author'], 'Karl the Tester')
-        self.assertEqual(haiku['posted'], False)
+        self.assertEqual(haiku[0]['haiku'], 'This is an\nVery Cool\nHaiku3')
+        self.assertEqual(haiku[0]['author'], 'Karl the Tester')
+        self.assertEqual(haiku[0]['posted'], False)
 
     def test_set_posted(self):
         self.store.put_haiku('This is an\nVery Cool\nHaiku4', 'Karl the Tester', posted=False)
