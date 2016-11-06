@@ -6,3 +6,4 @@ services:
      - "80:80"
     environment:
      - HAIKUBOT_API_KEY
+     - HAIKUBOT_DB_PW

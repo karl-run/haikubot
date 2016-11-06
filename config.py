@@ -13,7 +13,7 @@ list as needed.
 BOT_ID is used to identify bot in commands.
 """
 
-# User provided details
+# Basic details always required
 API_KEY = os.environ.get('HAIKUBOT_API_KEY')
 BOT_NAME = 'haikubot'
 POST_TO_CHANNEL = 'haikubot-test'
@@ -27,8 +27,7 @@ STASH_REPOSITORIES = [
         'REPOSITORIES': ['REPO_NAME_1', 'REPO_NAME_2']
     }
 ]
-STASH_POLL_TIME = 2  # Seconds
-# TODO add auth
+STASH_POLL_TIME = 60  # Seconds
 
 # Database
 FILE_DB = True
