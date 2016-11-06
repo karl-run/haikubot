@@ -41,6 +41,14 @@ punishment (getting a cake/snack for the entire team).
 1. Make sure you did step 1 and 2 in under the "Running" section.
 2. Run with coverage: `py.test --cov=./bot --cov-report term-missing`
 
+## TODO
+* Add commands for making adding and deleting haikus through the bot
+* Use ORM objects instead of working with dicts (and clean up how haikus are passed around)
+* Clean up how commands are handled, it's just a big 'ole messy method at the moment.
+* Add a ["field"](https://api.slack.com/docs/message-attachments) or two to the slack message with info like repository.
+* Make "show from" command list the newest haikus, not the oldest.
+* Add rating functionality. E.g: "@haikubot rate #69 80 points". Rating is stored and you can pull up best haikus. E.g: "@haikubot top 3 weekly"
+
 ## Fork it!
 Feel free to play around with it! If you're not using Stash you can easily change it to poll any VCS that has a REST-API,
 of course this will require changing the parsing of the JSON a bit.
