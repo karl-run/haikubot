@@ -121,7 +121,6 @@ class Persistence:
 
     def get_mods(self):
         all_mods = [str(row[1]) for row in self.connection.execute(select([mods]))]
-        print(all_mods)
         if not all_mods or len(all_mods) is 0:
             return ["There are currently no mods"]
         else:

@@ -64,8 +64,6 @@ class Persistence:
 
     def get_by(self, search, num=3):
         haiku_query = Query()
-        kek = self.haiku.search(haiku_query.author.test(lambda name: search.lower() in name.lower()))
-        print(kek)
         return self.haiku.search(haiku_query.author.test(lambda name: search.lower() in name.lower()))[0:num]
 
     def put_mod(self, username):
