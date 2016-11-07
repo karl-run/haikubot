@@ -1,5 +1,7 @@
 # Haikubot for Slack
 
+[![Build Status](https://travis-ci.org/hermith/haikubot.svg?branch=master)](https://travis-ci.org/hermith/haikubot)
+
 ## Purpose
 To increase your team's productivity, I highly recommend having a requirement that every pull-request
 is accompanied by a haiku that describes the PR or your mood when developing the PR.
