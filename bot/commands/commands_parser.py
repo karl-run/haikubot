@@ -1,6 +1,7 @@
 import logging
 
 from bot.commands.commands import Commands
+from bot.utils.color import string_to_color_hex
 
 
 def good_user(user):
@@ -24,6 +25,9 @@ class CommandsParser:
             response = self._remove_mod(command, action_user)
         elif command.startswith(Commands.LIST_MOD.value):
             response = self._list_mods()
+        elif command.startswith(Commands.STATS_TOP.value):
+            self._stats_top(command, channel)
+            return
         elif command.startswith(Commands.LAST_HAIKU.value):
             self._show_last_haiku(channel)
             return
@@ -109,3 +113,32 @@ class CommandsParser:
         else:
             self.slack.post_haiku(haiku['haiku'], haiku['author'], eid, haiku['link'], channel)
             return
+
+    def _stats_top(self, command, channel):
+        num = command.replace(Commands.STATS_TOP.value, '').strip().replace('#', '')
+        if len(num) < 1:
+            num = None
+        else:
+            try:
+                num = int(num)
+            except ValueError:
+                self.slack.post_message('"{}" is not a valid number'.format(num), channel)
+                return
+
+        stats = self.store.get_haiku_stats(num)
+        if len(stats) < 1:
+            self.slack.post_message("Couldn't find any haikus.", channel)
+            return
+
+        title = 'Haiku stats: # of haikus per user'
+        attachments = [{
+            'fallback': title,
+            'title': title,
+        }]
+        for i in range(len(stats)):
+            attachments.append({
+                'text': "#{} with {} haiku: {}\n".format(i + 1, stats[i][1], stats[i][0]),
+                'color': string_to_color_hex(stats[i][0])
+            })
+
+        self.slack.post_message(attachments, channel)

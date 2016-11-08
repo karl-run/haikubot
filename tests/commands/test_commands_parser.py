@@ -7,7 +7,7 @@ from tests.utils.spy import Spy
 ADD_VALID_CMD = "add mod valid_username"
 
 
-class StashTest(unittest.TestCase):
+class CommandParserTest(unittest.TestCase):
     def setUp(self):
         store = type('Dummy', (object,), {})()
         slack = type('Dummy', (object,), {})()
@@ -155,3 +155,38 @@ class StashTest(unittest.TestCase):
         self.assertFalse(false_spy.is_called())
         self.assertTrue(false_spy.is_called_times(0))
         self.assertEqual(('Found no haikus by "carl"', 'test_channel'), spy.args)
+
+    def test_haiku_stats_valid(self):
+        spy = Spy()
+        self.cp.store.get_haiku_stats = lambda x: [('Karl', 23), ('Dan', 3)]
+        self.cp.slack.post_message = spy.to_call
+        self.cp._stats_top('stats top', 'test_channel')
+
+        good = ([{'title': 'Haiku stats: # of haikus per user', 'fallback': 'Haiku stats: # of haikus per user'},
+                 {'color': '#75235e', 'text': '#1 with 23 haiku: Karl\n'},
+                 {'color': '#c249c7', 'text': '#2 with 3 haiku: Dan\n'}],
+                'test_channel')
+
+        self.assertTrue(spy.is_called())
+        self.assertEqual(good, spy.args)
+
+    def test_haiku_stats_valid_limit_top(self):
+        spy = Spy()
+        self.cp.store.get_haiku_stats = lambda x: [('Karl', 23)]
+        self.cp.slack.post_message = spy.to_call
+        self.cp._stats_top('stats top 1', 'test_channel')
+
+        good = ([{'title': 'Haiku stats: # of haikus per user', 'fallback': 'Haiku stats: # of haikus per user'},
+                 {'color': '#75235e', 'text': '#1 with 23 haiku: Karl\n'}],
+                'test_channel')
+
+        self.assertTrue(spy.is_called())
+        self.assertEqual(good, spy.args)
+
+    def test_haiku_stats_valid_bad_limit(self):
+        spy = Spy()
+        self.cp.slack.post_message = spy.to_call
+        self.cp._stats_top('stats top kek', 'test_channel')
+
+        self.assertTrue(spy.is_called())
+        self.assertEqual(('"kek" is not a valid number', 'test_channel'), spy.args)
