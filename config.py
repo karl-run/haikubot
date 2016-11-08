@@ -28,6 +28,7 @@ STASH_REPOSITORIES = [
     }
 ]
 STASH_POLL_TIME = 60  # Seconds
+READ_WEBSOCKET_DELAY = 1  # Seconds, used for Slack communication
 
 # Database
 FILE_DB = True

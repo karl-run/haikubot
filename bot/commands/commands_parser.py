@@ -73,7 +73,7 @@ class CommandsParser:
 
     def _show_from_haiku(self, command, channel):
         clean = command.replace(Commands.SHOW_FROM.value, '').strip()
-        if len(clean) < 3:
+        if len(clean) <= 3:
             self.slack.post_message('"{}" is not descriptive enough'.format(clean), channel)
             return
 

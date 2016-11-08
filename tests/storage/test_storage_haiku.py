@@ -63,7 +63,7 @@ class StorageHaikuTest(unittest.TestCase):
         self.store.put_haiku('This is an\nVery Cool\nHaiku10', 'Karl Three', posted=False)
         self.store.put_haiku('This is an\nVery Cool\nHaiku11', 'Karl Four', posted=False)
         posted = self.store.get_by('Karl')
-        self.assertEqual(posted[0]['author'], 'Karl One')
+        self.assertEqual(posted[0]['author'], 'Karl Four')
         self.assertTrue(len(posted) == 3)
 
     def test_get_haiku_by_author_set_amount(self):
@@ -72,5 +72,6 @@ class StorageHaikuTest(unittest.TestCase):
         self.store.put_haiku('This is an\nVery Cool\nHaiku14', 'Karl Three', posted=False)
         self.store.put_haiku('This is an\nVery Cool\nHaiku15', 'Karl Four', posted=False)
         posted = self.store.get_by('Karl', num=2)
-        self.assertEqual(posted[0]['author'], 'Karl One')
+        self.assertEqual(posted[0]['author'], 'Karl Four')
+        self.assertEqual(posted[1]['author'], 'Karl Three')
         self.assertTrue(len(posted) == 2)
