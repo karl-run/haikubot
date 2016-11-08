@@ -1,9 +1,9 @@
 import logging
 
-import hashlib
 from slackclient import SlackClient
 
 import config
+from bot.utils.color import string_to_color_hex
 
 
 class Slack:
@@ -31,7 +31,7 @@ class Slack:
 
     def post_haiku(self, haiku, author, haiku_id, stash_link, channel=config.POST_TO_CHANNEL):
         title = 'Haiku #{}'.format(haiku_id)
-        color = '#' + hex(int(hashlib.md5(author.encode('utf-8')).hexdigest(), 16) % 16777215).replace('0x', '').rjust(6, '0')
+        color = string_to_color_hex(author)
         haiku_with_title = [{
             'fallback': '{} av {}'.format(title, author),
             'title': 'Haiku #{}'.format(haiku_id),

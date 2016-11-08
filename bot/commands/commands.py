@@ -8,6 +8,7 @@ class Commands(Enum):
     LAST_HAIKU = 'show last'
     SHOW_ID = 'show'
     SHOW_FROM = 'show from'
+    STATS_TOP = 'stats top'
 
     @staticmethod
     def values():
