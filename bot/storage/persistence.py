@@ -96,10 +96,10 @@ class Persistence:
         ).first(), max_id
 
     def get_by(self, search, num=3):
-        haiku_result = [row for row in self.connection.execute(
+        res = [row for row in self.connection.execute(
             select([haikus]).where(haikus.c.author.startswith(search + '%'))
         )]
-        return haiku_result[0:num]
+        return res[:-num-1:-1]
 
     def put_mod(self, username):
         logging.debug('Adding {} as mod'.format(username))
@@ -121,7 +121,6 @@ class Persistence:
 
     def get_mods(self):
         all_mods = [str(row[1]) for row in self.connection.execute(select([mods]))]
-        print(all_mods)
         if not all_mods or len(all_mods) is 0:
             return ["There are currently no mods"]
         else:
