@@ -1,6 +1,6 @@
-import time
 import unittest
 
+from bot.commands.commands import Commands
 from bot.commands.commands_parser import CommandsParser
 from tests.utils.spy import Spy
 
@@ -40,7 +40,7 @@ class CommandParserTest(unittest.TestCase):
 
     def test_remove_mod_no_permission(self):
         self.cp.store.is_mod = lambda x: False
-        response = self.cp._add_mod(ADD_VALID_CMD, 'xXhac3rBoiXx')
+        response = self.cp._remove_mod(ADD_VALID_CMD, 'xXhac3rBoiXx')
 
         self.assertEqual("User 'xXhac3rBoiXx' is not a mod", response)
 
@@ -190,3 +190,89 @@ class CommandParserTest(unittest.TestCase):
 
         self.assertTrue(spy.is_called())
         self.assertEqual(('"kek" is not a valid number', 'test_channel'), spy.args)
+
+    def test_haiku_stats_valid_empty_result(self):
+        spy = Spy()
+        self.cp.store.get_haiku_stats = lambda x: []
+        self.cp.slack.post_message = spy.to_call
+        self.cp._stats_top('stats top 1', 'test_channel')
+
+        self.assertTrue(spy.is_called())
+        self.assertEqual(("Couldn't find any haikus.", "test_channel"), spy.args)
+
+    def test_handle_command_invalid(self):
+        spy = Spy()
+        self.cp.slack.post_message = spy.to_call
+        self.cp.handle_command('not good command', 'test_channel', 'testboy')
+
+        good = "Invalid command. Currently supported commands: " + str(Commands.values())
+
+        self.assertTrue(spy.is_called())
+        self.assertEqual((good, 'test_channel'), spy.args)
+
+    def test_handle_command_add_mod(self):
+        spy = Spy()
+        self.cp._add_mod = spy.to_call
+        self.cp.slack.post_message = spy.to_call
+        self.cp.handle_command('add mod', 'test_channel', 'testboy')
+
+        self.assertTrue(spy.times_called == 2)
+        self.assertTrue(spy.is_called())
+
+    def test_handle_command_remove_mod(self):
+        spy = Spy()
+        self.cp._remove_mod = spy.to_call
+        self.cp.slack.post_message = spy.to_call
+        self.cp.handle_command('remove mod', 'test_channel', 'testboy')
+
+        self.assertTrue(spy.times_called == 2)
+        self.assertTrue(spy.is_called())
+
+    def test_handle_command_list_mod(self):
+        spy = Spy()
+        self.cp._list_mods = spy.to_call
+        self.cp.slack.post_message = spy.to_call
+        self.cp.handle_command('list mod', 'test_channel', 'testboy')
+
+        self.assertTrue(spy.times_called == 2)
+        self.assertTrue(spy.is_called())
+
+    def test_handle_command_stats_top(self):
+        spy = Spy()
+        false_spy = Spy()
+        self.cp._stats_top = spy.to_call
+        self.cp.slack.post_message = false_spy.to_call
+        self.cp.handle_command('stats top', 'test_channel', 'testboy')
+
+        self.assertFalse(false_spy.is_called())
+        self.assertTrue(spy.is_called())
+
+    def test_handle_command_last_haiku(self):
+        spy = Spy()
+        false_spy = Spy()
+        self.cp._show_last_haiku = spy.to_call
+        self.cp.slack.post_message = false_spy.to_call
+        self.cp.handle_command('show last', 'test_channel', 'testboy')
+
+        self.assertFalse(false_spy.is_called())
+        self.assertTrue(spy.is_called())
+
+    def test_handle_command_haiku_from(self):
+        spy = Spy()
+        false_spy = Spy()
+        self.cp._show_from_haiku = spy.to_call
+        self.cp.slack.post_message = false_spy.to_call
+        self.cp.handle_command('show from', 'test_channel', 'testboy')
+
+        self.assertFalse(false_spy.is_called())
+        self.assertTrue(spy.is_called())
+
+    def test_handle_command_show_haiku_id(self):
+        spy = Spy()
+        false_spy = Spy()
+        self.cp._show_id_haiku = spy.to_call
+        self.cp.slack.post_message = false_spy.to_call
+        self.cp.handle_command('show', 'test_channel', 'testboy')
+
+        self.assertFalse(false_spy.is_called())
+        self.assertTrue(spy.is_called())

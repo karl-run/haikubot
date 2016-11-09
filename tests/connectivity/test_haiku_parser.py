@@ -34,8 +34,20 @@ class HaikuParserTest(unittest.TestCase):
     def test_is_haiku(self):
         self.assertTrue(parser.is_haiku(self.response['values'][0]['description']))
 
-    def test_non_haiku(self):
+    def test_is_haiku_few_lines(self):
         self.assertFalse(parser.is_haiku(self.response['values'][1]['description']))
+
+    def test_is_haiku_few_empty_line_first_three(self):
+        haiku = "This is good line\n\nThis is also good"
+        self.assertFalse(parser.is_haiku(haiku))
+
+    def test_is_haiku_is_list(self):
+        haiku = "*This is good line\n*This is also good\nNo list also"
+        self.assertFalse(parser.is_haiku(haiku))
+
+    def test_is_haiku_has_long_line(self):
+        haiku = "This is good line\nThis is also good\nBut oh my god this line is so long it can't possibly be haiku"
+        self.assertFalse(parser.is_haiku(haiku))
 
     def test_desc_to_haiku(self):
         result = parser.desc_to_haiku(self.response['values'][0]['description'],
