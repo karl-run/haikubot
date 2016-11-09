@@ -134,6 +134,7 @@ class CommandsParser:
         attachments = [{
             'fallback': title,
             'title': title,
+            'color': '#000000'
         }]
         for i in range(len(stats)):
             attachments.append({
