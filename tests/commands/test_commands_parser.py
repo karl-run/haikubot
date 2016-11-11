@@ -162,7 +162,8 @@ class CommandParserTest(unittest.TestCase):
         self.cp.slack.post_message = spy.to_call
         self.cp._stats_top('stats top', 'test_channel')
 
-        good = ([{'title': 'Haiku stats: # of haikus per user', 'fallback': 'Haiku stats: # of haikus per user'},
+        good = ([{'color': '#000000', 'title': 'Haiku stats: # of haikus per user',
+                  'fallback': 'Haiku stats: # of haikus per user'},
                  {'color': '#75235e', 'text': '#1 with 23 haiku: Karl\n'},
                  {'color': '#c249c7', 'text': '#2 with 3 haiku: Dan\n'}],
                 'test_channel')
@@ -176,7 +177,8 @@ class CommandParserTest(unittest.TestCase):
         self.cp.slack.post_message = spy.to_call
         self.cp._stats_top('stats top 1', 'test_channel')
 
-        good = ([{'title': 'Haiku stats: # of haikus per user', 'fallback': 'Haiku stats: # of haikus per user'},
+        good = ([{'color': '#000000', 'title': 'Haiku stats: # of haikus per user',
+                  'fallback': 'Haiku stats: # of haikus per user'},
                  {'color': '#75235e', 'text': '#1 with 23 haiku: Karl\n'}],
                 'test_channel')
 

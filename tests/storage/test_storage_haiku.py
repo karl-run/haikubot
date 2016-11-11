@@ -22,7 +22,7 @@ class StorageHaikuTest(unittest.TestCase):
         self.store._purge()
 
     def test_put_haiku_unposted(self):
-        self.store.put_haiku(EX_HAIKU + '1', 'Karl the Tester', posted=False)
+        hid = self.store.put_haiku(EX_HAIKU + '1', 'Karl the Tester', posted=False)
         haiku = self.store.get(1)
         self.assertEqual(haiku['haiku'], EX_HAIKU + '1')
         self.assertEqual(haiku['author'], 'Karl the Tester')

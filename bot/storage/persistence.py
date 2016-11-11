@@ -68,7 +68,7 @@ class Persistence:
             'date': str(datetime.now()),
             'link': link
         }])
-        return result.inserted_primary_key
+        return result.inserted_primary_key[0]
 
     def get_unposted(self):
         return [row for row in self.connection.execute(select([haikus]).where(haikus.c.posted == False))]
