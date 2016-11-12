@@ -22,7 +22,7 @@ class StorageHaikuTest(unittest.TestCase):
         self.store._purge()
 
     def test_put_haiku_unposted(self):
-        hid = self.store.put_haiku(EX_HAIKU + '1', 'Karl the Tester', posted=False)
+        self.store.put_haiku(EX_HAIKU + '1', 'Karl the Tester', posted=False)
         haiku = self.store.get(1)
         self.assertEqual(haiku['haiku'], EX_HAIKU + '1')
         self.assertEqual(haiku['author'], 'Karl the Tester')
@@ -101,3 +101,11 @@ class StorageHaikuTest(unittest.TestCase):
         self.store.put_haiku(EX_HAIKU + '18', 'Karl Four')
         posted = self.store.get_haiku_stats(top_num=2)
         self.assertEqual(correct, posted)
+
+    def test_get_all_haiku(self):
+        self.store.put_haiku(EX_HAIKU + '1', 'Karl One')
+        self.store.put_haiku(EX_HAIKU + '2', 'Karl One')
+        self.store.put_haiku(EX_HAIKU + '3', 'Carl Two')
+        self.store.put_haiku(EX_HAIKU + '4', 'Karl Three')
+        haiku = self.store.get_all_haiku()
+        self.assertEqual(4, len(haiku))

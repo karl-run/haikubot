@@ -1,5 +1,5 @@
 import logging
-
+from datetime import datetime
 from slackclient import SlackClient
 
 import config
@@ -11,6 +11,12 @@ class Slack:
         if api_key is None:
             raise ValueError('You must provide an API key for Slack.')
         self.sc = SlackClient(api_key)
+
+    def connect(self):
+        return self.sc.rtm_connect()
+
+    def read(self):
+        return self.sc.rtm_read()
 
     def get_id(self):
         logging.debug('Getting bot ID')
@@ -48,11 +54,21 @@ class Slack:
             logging.error('Unable to post haiku, error: {}'.format(response['error']))
         return response['ok']
 
-    def connect(self):
-        return self.sc.rtm_connect()
-
-    def read(self):
-        return self.sc.rtm_read()
+    def post_snippet(self, snippet_content, channel):
+        result = self.sc.api_call(
+            'files.upload',
+            title='Haiku export {}'.format(str(datetime.today())),
+            content=snippet_content,
+            channels=channel
+        )
+        return result['ok']
 
     def get_username(self, uid):
         return self.sc.server.users.find(uid)
+
+    def get_channel_name(self, cid):
+        channel = self.sc.server.channels.find(cid)
+        return channel.name if channel is not None else None
+
+    def get_channel_info(self, cid):
+        return self.sc.api_call('channels.info', channel=cid)

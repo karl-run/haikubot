@@ -1,5 +1,6 @@
 import unittest
 
+import config
 from bot.commands.commands import Commands
 from bot.commands.commands_parser import CommandsParser
 from tests.utils.spy import Spy
@@ -201,6 +202,46 @@ class CommandParserTest(unittest.TestCase):
 
         self.assertTrue(spy.is_called())
         self.assertEqual(("Couldn't find any haikus.", "test_channel"), spy.args)
+
+    def test_haiku_plain_export_not_private(self):
+        spy = Spy()
+        self.cp.slack.get_channel_info = lambda x: {'error': 'good'}
+        self.cp.slack.post_message = spy.to_call
+        self.cp._plain_export('export', 'test_channel')
+
+        self.assertTrue(spy.is_called())
+        self.assertEqual(("This command can only be used in a private chat with {}".format(config.BOT_NAME), "test_channel"), spy.args)
+
+    def test_haiku_plain_export(self):
+        spy = Spy()
+        haiku = {'haiku': 'hai', 'author': 'mei', 'link': 'nei', 'id': 3}
+        self.cp.slack.get_channel_info = lambda x: {'error': 'channel_not_found'}
+        self.cp.store.get_all_haiku = lambda: [haiku]
+        self.cp.slack.post_snippet = spy.to_call
+        self.cp._plain_export('export', 'test_channel')
+
+        self.assertTrue(spy.is_called())
+        self.assertEqual(('Haiku #3 by mei:\nhai\n', "test_channel"), spy.args)
+
+    def test_haiku_plain_export_with_search(self):
+        spy = Spy()
+        haiku = {'haiku': 'hai', 'author': 'nei', 'link': 'nei', 'id': 3}
+        self.cp.slack.get_channel_info = lambda x: {'error': 'channel_not_found'}
+        self.cp.store.get_by = lambda x, num: [haiku]
+        self.cp.slack.post_snippet = spy.to_call
+        self.cp._plain_export('export nok', 'test_channel')
+
+        self.assertTrue(spy.is_called())
+        self.assertEqual(('Haiku #3 by nei:\nhai\n', "test_channel"), spy.args)
+
+    def test_haiku_plain_export_with_search_bad(self):
+        spy = Spy()
+        self.cp.slack.get_channel_info = lambda x: {'error': 'channel_not_found'}
+        self.cp.slack.post_message = spy.to_call
+        self.cp._plain_export('export ka', 'test_channel')
+
+        self.assertTrue(spy.is_called())
+        self.assertEqual(('"ka" is not descriptive enough', "test_channel"), spy.args)
 
     def test_handle_command_invalid(self):
         spy = Spy()
