@@ -1,5 +1,6 @@
 import logging
 
+import config
 from bot.commands.commands import Commands
 from bot.utils.color import string_to_color_hex
 
@@ -16,7 +17,8 @@ class CommandsParser:
         self.slack = slack
 
     def handle_command(self, command, channel, action_user):
-        logging.debug('Command {} recieved from channel {} by user {}'.format(command, channel, action_user))
+        logging.debug('Command {} recieved from channel {} by user {} in channel {}'.format(command, channel,
+                                                                                            action_user, channel))
         response = "Invalid command. Currently supported commands: " + str(Commands.values())
 
         if command.startswith(Commands.ADD_MOD.value):
@@ -36,6 +38,9 @@ class CommandsParser:
             return
         elif command.startswith(Commands.SHOW_ID.value):
             self._show_id_haiku(command, channel)
+            return
+        elif command.startswith(Commands.EXPORT.value):
+            self._plain_export(command, channel)
             return
 
         self.slack.post_message(response, channel)
@@ -143,3 +148,30 @@ class CommandsParser:
             })
 
         self.slack.post_message(attachments, channel)
+
+    def _plain_export(self, command, channel):
+        if self.slack.get_channel_info(channel)['error'] != 'channel_not_found':
+            logging.debug('Command from channel "{}" denied, must be private'.format(channel))
+            self.slack.post_message("This command can only be used in a private chat with {}".format(config.BOT_NAME),
+                                    channel)
+            return
+
+        search = command.replace(Commands.EXPORT.value, '').strip().replace('#', '')
+        if len(search) < 1:
+            logging.debug('Found no search parameter, exporting everything.')
+            haikus = self.store.get_all_haiku()
+        elif len(search) < 3:
+            logging.debug('Found search parameter but not long enough, aborting.')
+            self.slack.post_message('"{}" is not descriptive enough'.format(search), channel)
+            return
+        else:
+            logging.debug('Found no search parameter, exporting everything.')
+            haikus = self.store.get_by(search, num=-1)
+
+        haikus_simple = ""
+        for i in range(len(haikus)):
+            haikus_simple += "Haiku #{} by {}:\n".format(haikus[i]['id'], haikus[i]['author'])
+            haikus_simple += haikus[i]['haiku']
+            haikus_simple += '\n'
+
+        self.slack.post_snippet(haikus_simple, channel)

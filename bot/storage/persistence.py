@@ -99,7 +99,12 @@ class Persistence:
         res = [row for row in self.connection.execute(
             select([haikus]).where(haikus.c.author.startswith(search + '%'))
         )]
-        return res[:-num - 1:-1]
+        return res[:-num - 1:-1] if num != -1 else res
+
+    def get_all_haiku(self):
+        return [row for row in self.connection.execute(
+            select([haikus])
+        )]
 
     def get_haiku_stats(self, top_num=None):
         logging.debug('Getting haiku stats with top {}'.format('everything' if top_num is not None else top_num))
@@ -110,7 +115,7 @@ class Persistence:
                 select([func.count(haikus.c.id)]).where(haikus.c.author == author)
             ).scalar()))
 
-        stats.sort(key=lambda tuple: tuple[1], reverse=True)
+        stats.sort(key=lambda tup: tup[1], reverse=True)
         return stats[0:top_num]
 
     def put_mod(self, username):
