@@ -12,6 +12,25 @@ to your team's slack! So everyone can enjoy your PR haikus.
 PS: Failure to supply an adequate haiku (not 5-7-5 syllables, a lot of filler words, etc.) should result in cake
 punishment (getting a cake/snack for the entire team).
 
+## Commands
+Haikus are posted directly to the channel configured, but there are also some commands that can be used at any time. All commands are triggered by `@botname` (as configured).
+
+* `show [haiku ID]`, example: `@botname show #3`
+
+   This will post a single haiku by that ID.
+* `show from [optional amount] [name]`, example: `@botname show from Danny` or `@botname show from 5 Danny`
+
+   This will post all haikus from that user up to the given amount, the default amount is `3`.
+* `show last`
+
+   Posts the newest haiku.
+* `stats top [optional amount]`, example: `@botname stats top`
+
+   Posts how many haikus each contributor has posted, default is every user. Limit to e.g. top 3 with `@botname stats top 3`
+
+* `export`, example: `@botname export [optional name]` (can only be used in private chat with `botname`)
+
+   In a private chat, will post a snippet of all haikus in plaintext, use with `@botname export Danny` to export only haikus by single contributor.
 ## Prerequisites
 ### Running locally
 #### For running with local storage
@@ -46,9 +65,7 @@ punishment (getting a cake/snack for the entire team).
 ## TODO
 * Add commands for making adding and deleting haikus through the bot
 * Use ORM objects instead of working with dicts (and clean up how haikus are passed around)
-* Clean up how commands are handled, it's just a big 'ole messy method at the moment.
 * Add a ["field"](https://api.slack.com/docs/message-attachments) or two to the slack message with info like repository.
-* Make "show from" command list the newest haikus, not the oldest.
 * Add rating functionality. E.g: "@haikubot rate #69 80 points". Rating is stored and you can pull up best haikus. E.g: "@haikubot top 3 weekly"
 
 ## Fork it!
