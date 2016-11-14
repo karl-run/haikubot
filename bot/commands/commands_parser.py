@@ -161,6 +161,9 @@ class CommandsParser:
         else:
             logging.debug('Found no search parameter, exporting everything.')
             haikus = self.store.get_by(search, num=-1)
+            if len(haikus) < 1:
+                self.slack.post_message('Found no haikus by "{}"'.format(search), channel)
+                return
 
         haikus_simple = ""
         for i in range(len(haikus)):

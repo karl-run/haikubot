@@ -203,14 +203,14 @@ class CommandParserTest(unittest.TestCase):
         self.assertTrue(spy.is_called())
         self.assertEqual(("Couldn't find any haikus.", "test_channel"), spy.args)
 
-    def test_haiku_plain_export_not_private(self):
+    def test_haiku_plain_export_not_found(self):
         spy = Spy()
-        self.cp.slack.get_channel_info = lambda x: {'error': 'good'}
         self.cp.slack.post_message = spy.to_call
-        self.cp._plain_export('export', 'test_channel')
+        self.cp.store.get_by = lambda x, num: []
+        self.cp._plain_export('export wakaka', 'test_channel')
 
         self.assertTrue(spy.is_called())
-        self.assertEqual(("This command can only be used in a private chat with {}".format(config.BOT_NAME), "test_channel"), spy.args)
+        self.assertEqual(('Found no haikus by "wakaka"', "test_channel"), spy.args)
 
     def test_haiku_plain_export(self):
         spy = Spy()
