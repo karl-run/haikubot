@@ -28,9 +28,10 @@ Haikus are posted directly to the channel configured, but there are also some co
 
    Posts how many haikus each contributor has posted, default is every user. Limit to e.g. top 3 with `@botname stats top 3`
 
-* `export`, example: `@botname export [optional name]` (can only be used in private chat with `botname`)
+* `export`, example: `@botname export [optional name]`
 
-   In a private chat, will post a snippet of all haikus in plaintext, use with `@botname export Danny` to export only haikus by single contributor.
+   Will post a snippet of all haikus in plaintext, use with `@botname export Danny` to export only haikus by single contributor.
+
 ## Prerequisites
 ### Running locally
 #### For running with local storage
@@ -42,7 +43,7 @@ Haikus are posted directly to the channel configured, but there are also some co
 * python3-dev
 
 ### Running with Docker
-* Docker
+* Docker, preferably with docker-compose
 
 ## Running
 1. Activate your virtualenv: `source venv/bin/activate`

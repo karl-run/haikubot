@@ -150,12 +150,6 @@ class CommandsParser:
         self.slack.post_message(attachments, channel)
 
     def _plain_export(self, command, channel):
-        if self.slack.get_channel_info(channel)['error'] != 'channel_not_found':
-            logging.debug('Command from channel "{}" denied, must be private'.format(channel))
-            self.slack.post_message("This command can only be used in a private chat with {}".format(config.BOT_NAME),
-                                    channel)
-            return
-
         search = command.replace(Commands.EXPORT.value, '').strip().replace('#', '')
         if len(search) < 1:
             logging.debug('Found no search parameter, exporting everything.')
