@@ -10,6 +10,7 @@ ADD_VALID_CMD = "add mod valid_username"
 
 class CommandParserTest(unittest.TestCase):
     def setUp(self):
+        config.USE_API_AI = False
         store = type('Dummy', (object,), {})()
         slack = type('Dummy', (object,), {})()
         self.spy = Spy()
@@ -248,7 +249,7 @@ class CommandParserTest(unittest.TestCase):
         self.cp.slack.post_message = spy.to_call
         self.cp.handle_command('not good command', 'test_channel', 'testboy')
 
-        good = "Invalid command. Currently supported commands: " + str(Commands.values())
+        good = "Invalid command: 'not good command'. Currently supported commands: " + str(Commands.values())
 
         self.assertTrue(spy.is_called())
         self.assertEqual((good, 'test_channel'), spy.args)

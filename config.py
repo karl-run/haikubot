@@ -30,6 +30,10 @@ STASH_REPOSITORIES = [
 STASH_POLL_TIME = 60  # Seconds
 READ_WEBSOCKET_DELAY = 1  # Seconds, used for Slack communication
 
+# API.AI integration
+USE_API_AI = False
+API_AI_TOKEN = os.environ.get('API_AI_KEY')
+
 # Database
 FILE_DB = True
 DATABASE_PATH = './'

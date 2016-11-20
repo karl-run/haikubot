@@ -2,6 +2,7 @@ import logging
 
 import config
 from bot.commands.commands import Commands
+from bot.commands.language_parsing import ApiAi
 from bot.utils.color import string_to_color_hex
 
 
@@ -15,11 +16,25 @@ class CommandsParser:
     def __init__(self, store, slack):
         self.store = store
         self.slack = slack
+        if config.USE_API_AI:
+            self.apiai = ApiAi()
 
     def handle_command(self, command, channel, action_user):
         logging.debug('Command {} recieved from channel {} by user {} in channel {}'.format(command, channel,
                                                                                             action_user, channel))
-        response = "Invalid command. Currently supported commands: " + str(Commands.values())
+        response = "Invalid command: '{}'. Currently supported commands: ".format(command) + str(Commands.values())
+
+        if config.USE_API_AI:
+            logging.debug("Processing command through API.AI: '{}'".format(command))
+            lang_response, ok = self.apiai.process(command)
+            if ok:
+                logging.debug("API AI parse was success, response: '{}'".format(lang_response))
+                command = lang_response
+            elif not ok and len(lang_response) > 0:
+                self.slack.post_message(lang_response, channel)
+                return
+            else:
+                logging.debug("API AI failed, using original command")
 
         if command.startswith(Commands.ADD_MOD.value):
             response = self._add_mod(command, action_user)
