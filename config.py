@@ -29,6 +29,7 @@ STASH_REPOSITORIES = [
 ]
 STASH_POLL_TIME = 60  # Seconds
 READ_WEBSOCKET_DELAY = 1  # Seconds, used for Slack communication
+GROUP_HAIKU_EXPORT_SIZE = 100 # How many haikus to limit into a single 'file' export
 
 # Database
 FILE_DB = True

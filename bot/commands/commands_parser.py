@@ -165,10 +165,13 @@ class CommandsParser:
                 self.slack.post_message('Found no haikus by "{}"'.format(search), channel)
                 return
 
-        haikus_simple = ""
-        for i in range(len(haikus)):
-            haikus_simple += "Haiku #{} by {}:\n".format(haikus[i]['id'], haikus[i]['author'])
-            haikus_simple += haikus[i]['haiku']
-            haikus_simple += '\n'
+        export_max = config.GROUP_HAIKU_EXPORT_SIZE
+        for c in range(0, len(haikus), export_max):
+            haikus_simple = ""
+            iteration_max = export_max if c + export_max < len(haikus) else len(haikus)
+            for i in range(c, iteration_max):
+                haikus_simple += "Haiku #{} by {}:\n".format(haikus[i]['id'], haikus[i]['author'])
+                haikus_simple += haikus[i]['haiku']
+                haikus_simple += '\n'
 
-        self.slack.post_snippet(haikus_simple, channel)
+            self.slack.post_snippet(haikus_simple, channel)
