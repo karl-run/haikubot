@@ -48,6 +48,10 @@ class Stash(Thread):
                     logging.error('Server not responding: ' + url)
                     continue
 
+                if 'errors' in result:
+                    logging.error('Stash responded with error: ' + result['errors']['message'])
+                    continue
+
                 url_id = hashlib.md5(url.replace('?state=MERGED', '').encode('utf-8')).hexdigest()
                 parsed = parser.parse_stash_response(result, url_id, self.store)
 

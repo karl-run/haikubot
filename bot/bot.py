@@ -55,9 +55,9 @@ class Haikubot:
             logging.info("Stop has been called, trying to stop gracefully.")
         except ValueError:
             raise ValueError  # We want it to die
-        except Exception:
-            if True:
-                logging.critical('config.DEBUG is set, crashing on failure.')
+        except Exception as err:
+            if config.DEBUG:
+                logging.critical('config.DEBUG is set, crashing on failure, error: ' + str(err))
                 raise Exception
 
             logging.error('Something unexpected happened, trying to restart bot.' + str(Exception))
