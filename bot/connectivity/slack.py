@@ -35,6 +35,9 @@ class Slack:
 
         return self.sc.api_call("chat.postMessage", channel=channel, as_user=as_user, text=message)
 
+    def post_haiku_model(self, haiku, channel=config.POST_TO_CHANNEL):
+        return self.post_haiku(haiku.haiku, haiku.author, haiku.hid, haiku.link, channel)
+
     def post_haiku(self, haiku, author, haiku_id, stash_link, channel=config.POST_TO_CHANNEL):
         title = 'Haiku #{}'.format(haiku_id)
         color = string_to_color_hex(author)

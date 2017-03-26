@@ -1,8 +1,12 @@
 import logging
 
+from sqlalchemy.exc import IntegrityError
+
 import config
 from bot.commands.commands import Commands
+from bot.model.haiku import Haiku
 from bot.utils.color import string_to_color_hex
+from bot.utils.haiku_parser import is_haiku
 
 
 def good_user(user):
@@ -27,6 +31,8 @@ class CommandsParser:
             response = self._remove_mod(command, action_user)
         elif command.startswith(Commands.LIST_MOD.value):
             response = self._list_mods()
+        elif command.startswith(Commands.ADD_HAIKU.value):
+            response = self._add_haiku(command, action_user)
         elif command.startswith(Commands.STATS_TOP.value):
             self._stats_top(command, channel)
             return
@@ -52,8 +58,11 @@ class CommandsParser:
 
         user = command.replace(Commands.ADD_MOD.value, '').strip()
         if good_user(user):
-            self.store.put_mod(user)
-            return user + " added as bot mod."
+            try:
+                self.store.put_mod(user)
+            except IntegrityError:
+                return "'{}' is already a mod".format(user)
+            return "'{}' added as bot mod.".format(user)
         else:
             return "'{}' is not a valid username.".format(user)
 
@@ -175,3 +184,26 @@ class CommandsParser:
                 haikus_simple += '\n'
 
             self.slack.post_snippet(haikus_simple, channel)
+
+    def _add_haiku(self, command, action_user):
+        haiku_string = command.replace(Commands.ADD_HAIKU.value, '').strip()
+        haiku_split = haiku_string.replace('\r', '').split('\n')
+        if len(haiku_split) > 3 and is_haiku(haiku_split[0:3]):
+            haiku = Haiku('\n'.join(haiku_split[0:3]), haiku_split[3].title(), 'Slack')
+            if len(haiku.author) > 8:
+                if not self.store.has_posted_haiku(haiku.author):
+                    if not (len(haiku_split) > 4 and haiku_split[4] == 'Yes'):
+                        return "{} doesn't have any existing haiku, are you sure the name is" \
+                               " correct? Repeat the request with a 'Yes' on a new line to verify,".format(haiku.author)
+                try:
+                    self.store.put_haiku_model(haiku)
+                except IntegrityError:
+                    return "{} tried posting a duplicate haiku, boo!".format(action_user.name)
+                self.slack.post_haiku_model(haiku)
+                return "{} just added haiku #{}.".format(action_user.name, haiku.hid)
+            else:
+                return "'{}' is not a valid author name".format(haiku_split[3])
+        else:
+            return "That's either not a valid haiku, or you forgot to supply and author. Remember to" \
+                   " linebreak after the command, then supply 3 individual lines with the fourth line " \
+                   "being the author.".format(haiku_string)

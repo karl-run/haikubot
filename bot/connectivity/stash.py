@@ -1,12 +1,12 @@
+import hashlib
 import json
 import logging
 import time
 from threading import Thread
 
-import hashlib
 import requests
 
-import bot.connectivity.haiku_parser as parser
+import bot.utils.haiku_parser as parser
 import config
 
 

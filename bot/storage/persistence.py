@@ -59,6 +59,11 @@ class Persistence:
             select([func.count(checked.c.stash_id)]).where(checked.c.stash_id == cid)
         ).scalar() == 1
 
+    def put_haiku_model(self, haiku):
+        hid = self.put_haiku(haiku.haiku, haiku.author, haiku.link)
+        haiku.hid = hid
+        return hid
+
     def put_haiku(self, haiku, author, link=None, posted=False):
         logging.debug('Adding inserting haiku from user {}'.format(author))
         result = self.connection.execute(haikus.insert(), [{
@@ -142,6 +147,10 @@ class Persistence:
             return ["There are currently no mods"]
         else:
             return all_mods
+
+    def has_posted_haiku(self, name):
+        authors = [row[0] for row in self.connection.execute(select([haikus.c.author]).distinct())]
+        return name in authors
 
     def _purge(self):
         self.connection.execute(haikus.delete())

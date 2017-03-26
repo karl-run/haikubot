@@ -319,3 +319,12 @@ class CommandParserTest(unittest.TestCase):
 
         self.assertFalse(false_spy.is_called())
         self.assertTrue(spy.is_called())
+
+    def test_handle_command_add_haiku(self):
+        spy = Spy()
+        self.cp._add_haiku = spy.to_call
+        self.cp.slack.post_message = spy.to_call
+        self.cp.handle_command('add haiku bla bla', 'test_channel', 'testboy')
+
+        self.assertEqual(2, spy.times_called)
+        self.assertTrue(spy.is_called())

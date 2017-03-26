@@ -10,6 +10,7 @@ class Commands(Enum):
     SHOW_FROM = 'show from'
     EXPORT = 'export'
     STATS_TOP = 'stats top'
+    ADD_HAIKU = 'add haiku'
 
     @staticmethod
     def values():
