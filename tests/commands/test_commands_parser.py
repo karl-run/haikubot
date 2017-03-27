@@ -126,23 +126,23 @@ class CommandParserTest(unittest.TestCase):
         spy = Spy()
         haiku = {'haiku': 'hai', 'author': 'mei', 'link': 'nei', 'id': 3}
         self.cp.store.get_by = lambda x, n: [haiku, haiku]
-        self.cp.slack.post_haiku = spy.to_call
+        self.cp.slack.post_haikus = spy.to_call
         self.cp._show_from_haiku('show from 3 carl', 'test_channel')
 
         self.assertTrue(spy.is_called())
-        self.assertTrue(spy.is_called_times(2))
-        self.assertEqual(('hai', 'mei', 3, 'nei', 'test_channel'), spy.args)
+        self.assertTrue(spy.is_called_times(1))
+        self.assertEqual(([haiku, haiku], 'test_channel'), spy.args)
 
     def test_show_from_haiku_no_number(self):
         spy = Spy()
         haiku = {'haiku': 'hai', 'author': 'mei', 'link': 'nei', 'id': 3}
         self.cp.store.get_by = lambda x: [haiku, haiku, haiku]
-        self.cp.slack.post_haiku = spy.to_call
+        self.cp.slack.post_haikus = spy.to_call
         self.cp._show_from_haiku('show from carl', 'test_channel')
 
         self.assertTrue(spy.is_called())
-        self.assertTrue(spy.is_called_times(3))
-        self.assertEqual(('hai', 'mei', 3, 'nei', 'test_channel'), spy.args)
+        self.assertTrue(spy.is_called_times(1))
+        self.assertEqual(([haiku, haiku, haiku], 'test_channel'), spy.args)
 
     def test_show_from_haiku_none_found(self):
         spy = Spy()

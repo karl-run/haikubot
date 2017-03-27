@@ -6,6 +6,19 @@ import config
 from bot.utils.color import string_to_color_hex
 
 
+def haiku_to_attachment(haiku):
+    title = 'Haiku #{}'.format(haiku['id'])
+    color = string_to_color_hex(haiku['author'])
+    return {
+        'fallback': '{} av {}'.format(title, haiku['author']),
+        'title': 'Haiku #{}'.format(haiku['id']),
+        'title_link': haiku['link'],
+        'color': color,
+        'footer': '- {}'.format(haiku['author']),
+        'text': haiku['haiku']
+    }
+
+
 class Slack:
     def __init__(self, api_key):
         if api_key is None:
@@ -38,17 +51,20 @@ class Slack:
     def post_haiku_model(self, haiku, channel=config.POST_TO_CHANNEL):
         return self.post_haiku(haiku.haiku, haiku.author, haiku.hid, haiku.link, channel)
 
+    def post_haikus(self, haikus, channel):
+        attachments = []
+        for haiku in haikus:
+            attachments.append(haiku_to_attachment(haiku))
+
+        response = self.post_message(attachments, channel)
+
+        if not response['ok']:
+            logging.error('Unable to post haiku, error: {}'.format(response['error']))
+        return response['ok']
+
     def post_haiku(self, haiku, author, haiku_id, stash_link, channel=config.POST_TO_CHANNEL):
-        title = 'Haiku #{}'.format(haiku_id)
-        color = string_to_color_hex(author)
-        haiku_with_title = [{
-            'fallback': '{} av {}'.format(title, author),
-            'title': 'Haiku #{}'.format(haiku_id),
-            'title_link': stash_link,
-            'color': color,
-            'footer': '- {}'.format(author),
-            'text': haiku
-        }]
+        haiku_dict = {'haiku': haiku, 'author': author, 'id': haiku_id, 'link': stash_link}
+        haiku_with_title = [haiku_to_attachment(haiku_dict)]
         logging.info('Posting haiku id {} to channel {}.'.format(haiku_id, channel))
 
         response = self.post_message(haiku_with_title, channel)

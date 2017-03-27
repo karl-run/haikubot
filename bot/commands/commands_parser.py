@@ -109,8 +109,7 @@ class CommandsParser:
             haikus = self.store.get_by(search, num)
 
         if len(haikus) > 0:
-            for h in haikus:
-                self.slack.post_haiku(h['haiku'], h['author'], h['id'], h['link'], channel)
+                self.slack.post_haikus(haikus, channel)
         else:
             self.slack.post_message('Found no haikus by "{}"'.format(search), channel)
 

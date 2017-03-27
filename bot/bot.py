@@ -2,7 +2,7 @@ import logging
 import time
 
 from sqlalchemy.exc import IntegrityError
-from websocket import WebSocketConnectionClosedException
+from websocket._exceptions import WebSocketConnectionClosedException
 
 from bot.commands.commands_parser import CommandsParser
 from bot.connectivity.slack import Slack
