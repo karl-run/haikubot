@@ -9,4 +9,7 @@ logging.info('Running haikubot ' + VERSION)
 
 if __name__ == "__main__":
     bot = Haikubot(config.API_KEY)
-    bot.run()
+    try:
+        bot.run()
+    except:
+        bot.clean_up()

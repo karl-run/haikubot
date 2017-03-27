@@ -1,6 +1,6 @@
 slackclient
 sqlalchemy
 psycopg2
-tinydb
+websocket
 pytest
 pytest-cov

@@ -2,6 +2,7 @@ import logging
 import time
 
 from sqlalchemy.exc import IntegrityError
+from websocket import WebSocketConnectionClosedException
 
 from bot.commands.commands_parser import CommandsParser
 from bot.connectivity.slack import Slack
@@ -20,18 +21,22 @@ class Haikubot:
         self.bot_id = self.slack.get_id()
 
         self._at = '<@' + self.bot_id + '>'
-        self.death = {'died': False, 'channel': None}
+        self.connectionInfo = {'died': False, 'channel': None, 'hasConnected': False}
 
     def run(self):
         try:
+            logging.debug("Connecting to slack websocket...")
             if self.slack.connect():
+                logging.info("Connected to slack websocket")
+
+                self.connectionInfo['hasConnected'] = True
+
                 if not self.stash.is_alive():
                     self.stash.start()
 
-                logging.info("haikubot connected and running!")
-                if self.death['died'] and self.death['channel']:
+                if self.connectionInfo['died'] and self.connectionInfo['channel']:
                     response = "Fock you broke me. Don't do that again."
-                    self.slack.post_message(response, self.death['channel'])
+                    self.slack.post_message(response, self.connectionInfo['channel'])
                 while True:
                     try:
                         command, channel, user = self._parse_slack_output(self.slack.read())
@@ -40,16 +45,21 @@ class Haikubot:
                         continue
 
                     if command and channel and user:
-                        self.death['channel'] = channel
+                        self.connectionInfo['channel'] = channel
                         self.commands.handle_command(command, channel, user)
 
-                    self.death['channel'] = None
+                    self.connectionInfo['channel'] = None
 
                     time.sleep(config.READ_WEBSOCKET_DELAY)
             else:
                 logging.error('Connection error, not able to connect to Slack.')
+                if self.connectionInfo['hasConnected']:
+                    raise WebSocketConnectionClosedException()
                 raise ValueError('Unable to connect, bad token or bot ID?')
-
+        except WebSocketConnectionClosedException:
+            logging.error("Websocket (slack) connection error, will try to reconnect in 30 seconds")
+            time.sleep(30)
+            self.run()
         except KeyboardInterrupt:
             self.stash.stop()
             logging.info("Stop has been called, trying to stop gracefully.")
@@ -61,7 +71,7 @@ class Haikubot:
                 raise Exception
 
             logging.error('Something unexpected happened, trying to restart bot.' + str(Exception))
-            self.death['died'] = True
+            self.connectionInfo['died'] = True
             self.run()
 
     def post_and_store_haiku(self, haiku, author, link):
@@ -84,3 +94,6 @@ class Haikubot:
                            output['channel'], \
                            self.slack.get_username(output['user'])
         return None, None, None
+
+    def clean_up(self):
+        self.stash.stop()
