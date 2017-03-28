@@ -1,5 +1,2 @@
 slackclient
 sqlalchemy
-psycopg2
-pytest
-pytest-cov

@@ -2,11 +2,11 @@ import logging
 
 from sqlalchemy.exc import IntegrityError
 
-import config
-from bot.commands.commands import Commands
-from bot.model.haiku import Haiku
-from bot.utils.color import string_to_color_hex
-from bot.utils.haiku_parser import is_haiku
+from haikubot import config
+from haikubot.commands.commands import Commands
+from haikubot.model.haiku import Haiku
+from haikubot.utils.color import string_to_color_hex
+from haikubot.utils.haiku_parser import is_haiku
 
 
 def good_user(user):

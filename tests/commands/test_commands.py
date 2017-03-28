@@ -1,6 +1,6 @@
 import unittest
 
-from bot.commands.commands import Commands
+from haikubot.commands.commands import Commands
 
 
 class CommandsTest(unittest.TestCase):

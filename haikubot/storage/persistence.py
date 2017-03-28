@@ -2,11 +2,11 @@ import logging
 from datetime import datetime
 
 from sqlalchemy import create_engine
-from sqlalchemy import func, Table, Column, Boolean, Integer, String, MetaData, ForeignKey
-from sqlalchemy.sql import select, update, delete
+from sqlalchemy import func, Table, Column, Boolean, Integer, String, MetaData
 from sqlalchemy.pool import StaticPool
+from sqlalchemy.sql import select, update
 
-import config
+from haikubot import config
 
 db_location = './haikubot.db' if not config.DATABASE_PATH else config.DATABASE_PATH + 'haikubot.db'
 

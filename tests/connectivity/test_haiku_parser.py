@@ -1,6 +1,6 @@
 import unittest
 
-import bot.utils.haiku_parser as parser
+import haikubot.utils.haiku_parser as parser
 from tests.utils.spy import Spy
 
 

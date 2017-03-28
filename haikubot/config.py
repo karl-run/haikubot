@@ -43,7 +43,7 @@ DB_PW = os.environ.get('HAIKUBOT_DB_PW')
 
 # Debugging
 DEBUG = True
-DEBUG_URL = 'bot/connectivity/example_stash.json'
+DEBUG_URL = 'data/example_stash.json'
 
 # Logging
 LOG_PATH = ''  # Empty for console output

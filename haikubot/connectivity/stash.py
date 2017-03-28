@@ -6,8 +6,8 @@ from threading import Thread
 
 import requests
 
-import bot.utils.haiku_parser as parser
-import config
+import haikubot.utils.haiku_parser as parser
+from haikubot import config
 
 
 def make_urls():
@@ -44,6 +44,9 @@ class Stash(Thread):
             for url in self.urls:
                 try:
                     result = self.fetch(url)
+                except FileNotFoundError as err:
+                    logging.error('Debug file not found')
+                    raise err
                 except OSError:
                     logging.error('Server not responding: ' + url)
                     continue

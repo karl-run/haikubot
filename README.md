@@ -51,7 +51,7 @@ Haikus are posted directly to the channel configured, but there are also some co
 3. Set sequired environment variables: `HAIKUBOT_API_KEY`
     * If using a remote DB also set `HAIKUBOT_DB_PW`
 4. Make changes to `config.py`, the most important fields are in the first section.
-5. Run the bot with `python run.py`
+5. Run the bot with `python bin/run_haikubot.py`
 
 ## Running with Docker (and docker-compose)
 1. Set sequired environment variables: `HAIKUBOT_API_KEY`

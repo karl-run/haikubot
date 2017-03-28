@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 
-from bot.storage.persistence import Persistence
+from haikubot.storage.persistence import Persistence
 
 import unittest
 

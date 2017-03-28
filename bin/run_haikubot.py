@@ -1,9 +1,9 @@
 import logging
 
-from bot.bot import Haikubot
-import config
+from haikubot import config
+from haikubot.bot import Haikubot
 
-VERSION = 'v0.0.1'
+VERSION = 'v0.1'
 
 logging.info('Running haikubot ' + VERSION)
 

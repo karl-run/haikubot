@@ -1,10 +1,10 @@
-FROM python:3.5.2
+FROM python:3.6.1
 
 MAINTAINER Karl J. Overå
 
 ADD . /bot
 WORKDIR /bot
-RUN pip install -r requirements.txt
+RUN python setup.py install
 EXPOSE 80
 
-CMD python run.py
+CMD run_haikubot.py

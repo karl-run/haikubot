@@ -1,7 +1,7 @@
 import unittest
 import time
 
-from bot.connectivity.stash import Stash
+from haikubot.connectivity.stash import Stash
 from tests.utils.spy import Spy
 
 

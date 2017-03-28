@@ -1,8 +1,7 @@
 import unittest
 
-import config
-from bot.commands.commands import Commands
-from bot.commands.commands_parser import CommandsParser
+from haikubot.commands.commands import Commands
+from haikubot.commands.commands_parser import CommandsParser
 from tests.utils.spy import Spy
 
 ADD_VALID_CMD = "add mod valid_username"

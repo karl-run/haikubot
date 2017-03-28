@@ -1,9 +1,10 @@
 import logging
 from datetime import datetime
+
 from slackclient import SlackClient
 
-import config
-from bot.utils.color import string_to_color_hex
+from haikubot import config
+from haikubot.utils.color import string_to_color_hex
 
 
 def haiku_to_attachment(haiku):
