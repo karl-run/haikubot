@@ -2,7 +2,7 @@ import logging
 import time
 
 from sqlalchemy.exc import IntegrityError
-from websocket._exceptions import WebSocketConnectionClosedException
+from websocket._exceptions import WebSocketException
 
 from haikubot import config
 from haikubot.commands.commands_parser import CommandsParser
@@ -25,7 +25,7 @@ class Haikubot:
     def run(self):
         try:
             self._connect_and_loop()
-        except WebSocketConnectionClosedException:
+        except WebSocketException:
             logging.error("Websocket (slack) connection error, will try to reconnect in 30 seconds")
             time.sleep(30)
             self.run()
@@ -84,7 +84,7 @@ class Haikubot:
         else:
             logging.error('Connection error, not able to connect to Slack.')
             if self.connectionInfo['hasConnected']:
-                raise WebSocketConnectionClosedException()
+                raise WebSocketException()
             raise ValueError('Unable to connect, bad token or bot ID?')
 
     def clean_up(self):
