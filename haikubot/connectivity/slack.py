@@ -86,6 +86,9 @@ class Slack:
     def get_username(self, uid):
         return self.sc.server.users.find(uid)
 
+    def get_channe_name(self, cid):
+        return self.sc.server.channels.find(cid)
+
     def get_channel_name(self, cid):
         channel = self.sc.server.channels.find(cid)
         return channel.name if channel is not None else None

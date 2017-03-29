@@ -7,6 +7,7 @@ from sqlalchemy.pool import StaticPool
 from sqlalchemy.sql import select, update
 
 from haikubot import config
+from haikubot.model.haiku import Haiku
 
 db_location = './haikubot.db' if not config.DATABASE_PATH else config.DATABASE_PATH + 'haikubot.db'
 
@@ -86,10 +87,14 @@ class Persistence:
         for hid in ids:
             self.connection.execute(update(haikus).where(haikus.c.id == hid).values(posted=True))
 
-    def get(self, hid):
+    def get_haiku(self, hid):
         return self.connection.execute(
             select([haikus]).where(haikus.c.id == hid)
         ).first()
+
+    def remove_haiku(self, hid):
+        logging.debug('Deleting haiku #{}'.format(hid))
+        return self.connection.execute(haikus.delete().where(haikus.c.id == hid))
 
     def get_newest(self):
         max_id = self.connection.execute(
@@ -124,13 +129,13 @@ class Persistence:
         return stats[0:top_num]
 
     def put_mod(self, username):
-        logging.debug('Adding {} as mod'.format(username))
+        logging.debug('Adding {} as haikumod'.format(username))
         self.connection.execute(mods.insert(), [{
             'username': username,
         }])
 
     def remove_mod(self, username):
-        logging.debug('Removing {} as mod'.format(username))
+        logging.debug('Removing {} as haikumod'.format(username))
         self.connection.execute(mods.delete().where(mods.c.username == username))
 
     def is_mod(self, username):

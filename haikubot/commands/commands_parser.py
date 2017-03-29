@@ -15,6 +15,10 @@ def good_user(user):
     return True
 
 
+def dict_to_haiku(haiku_dict):
+    return Haiku(haiku_dict['haiku'], haiku_dict['author'], haiku_dict['link'], haiku_dict['id'])
+
+
 class CommandsParser:
     def __init__(self, store, slack):
         self.store = store
@@ -24,6 +28,7 @@ class CommandsParser:
         logging.debug('Command {} recieved from channel {} by user {} in channel {}'.format(command, channel,
                                                                                             action_user, channel))
         response = "Invalid command. Currently supported commands: " + str(Commands.values())
+        action_user = action_user.name
 
         if command.startswith(Commands.ADD_MOD.value):
             response = self._add_mod(command, action_user)
@@ -33,6 +38,8 @@ class CommandsParser:
             response = self._list_mods()
         elif command.startswith(Commands.ADD_HAIKU.value):
             response = self._add_haiku(command, action_user)
+        elif command.startswith(Commands.DELETE_HAIKU.value):
+            response = self._delete_haiku(command, action_user, channel)
         elif command.startswith(Commands.STATS_TOP.value):
             self._stats_top(command, channel)
             return
@@ -53,28 +60,28 @@ class CommandsParser:
 
     def _add_mod(self, command, action_user):
         if not self.store.is_mod(action_user):
-            logging.debug('User not mod')
-            return "User '{}' is not a mod".format(action_user)
+            logging.debug('User not haikumod')
+            return "User '{}' is not a haikumod".format(action_user)
 
         user = command.replace(Commands.ADD_MOD.value, '').strip()
         if good_user(user):
             try:
                 self.store.put_mod(user)
             except IntegrityError:
-                return "'{}' is already a mod".format(user)
-            return "'{}' added as bot mod.".format(user)
+                return "'{}' is already a haikumod".format(user)
+            return "'{}' added as haikumod.".format(user)
         else:
             return "'{}' is not a valid username.".format(user)
 
     def _remove_mod(self, command, action_user):
         if not self.store.is_mod(action_user):
-            logging.debug('User not mod')
-            return "User '{}' is not a mod".format(action_user)
+            logging.debug('User not haikumod')
+            return "User '{}' is not a haikumod".format(action_user)
 
         user = command.replace(Commands.REMOVE_MOD.value, '').strip()
         if good_user(user):
             self.store.remove_mod(user)
-            return user + " has been removed as bot mod."
+            return user + " has been removed as haikumod."
         else:
             return "'{}' is not a valid username.".format(user)
 
@@ -120,7 +127,7 @@ class CommandsParser:
         except ValueError:
             self.slack.post_message('"{}" is not a valid number'.format(eid), channel)
             return
-        haiku = self.store.get(eid)
+        haiku = self.store.get_haiku(eid)
         if not haiku:
             self.slack.post_message('Found no haiku with id {}'.format(eid), channel)
         else:
@@ -197,12 +204,38 @@ class CommandsParser:
                 try:
                     self.store.put_haiku_model(haiku)
                 except IntegrityError:
-                    return "{} tried posting a duplicate haiku, boo!".format(action_user.name)
+                    return "{} tried posting a duplicate haiku, boo!".format(action_user)
                 self.slack.post_haiku_model(haiku)
-                return "{} just added haiku #{}.".format(action_user.name, haiku.hid)
+                return "{} just added haiku #{}.".format(action_user, haiku.hid)
             else:
                 return "'{}' is not a valid author name".format(haiku_split[3])
         else:
             return "That's either not a valid haiku, or you forgot to supply and author. Remember to" \
                    " linebreak after the command, then supply 3 individual lines with the fourth line " \
                    "being the author.".format(haiku_string)
+
+    def _delete_haiku(self, command, action_user, channel):
+        if not self.store.is_mod(action_user):
+            logging.debug('User not mod')
+            return "User '{}' is not a haikumod".format(action_user)
+
+        hid = command.replace(Commands.DELETE_HAIKU.value, '').strip().replace('#', '')
+        try:
+            hid = int(hid)
+        except ValueError:
+            self.slack.post_message('"{}" is not a valid haiku id'.format(hid), channel)
+            return
+
+        deleted_haiku = self.store.get_haiku(hid)
+        result = self.store.remove_haiku(hid)
+        success = result.rowcount > 0
+
+        if success:
+            if self.slack.get_channe_name(channel) != config.POST_TO_CHANNEL:
+                self.slack.post_message("User @{} just deleted haiku #{}:".format(action_user, hid))
+                self.slack.post_haiku_model(dict_to_haiku(deleted_haiku))
+
+            self.slack.post_haiku_model(dict_to_haiku(deleted_haiku), channel)
+            return "Haiku #{} deleted. Say good bye to it one last time.".format(hid)
+
+        return "There was no haiku with id #{}".format(hid)

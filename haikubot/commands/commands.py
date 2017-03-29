@@ -11,6 +11,7 @@ class Commands(Enum):
     EXPORT = 'export'
     STATS_TOP = 'stats top'
     ADD_HAIKU = 'add haiku'
+    DELETE_HAIKU = 'delete haiku'
 
     @staticmethod
     def values():
