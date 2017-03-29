@@ -4,7 +4,7 @@ import time
 from sqlalchemy.exc import IntegrityError
 from websocket._exceptions import WebSocketException
 
-from haikubot import config
+from haikubot import config, VERSION
 from haikubot.commands.commands_parser import CommandsParser
 from haikubot.connectivity.slack import Slack
 from haikubot.connectivity.stash import Stash
@@ -13,6 +13,8 @@ from haikubot.storage.persistence import Persistence
 
 class Haikubot:
     def __init__(self, api_key):
+        logging.info('Running haikubot v' + VERSION)
+
         self.slack = Slack(api_key)
         self.store = Persistence()
         self.stash = Stash(self._post_and_store_haiku, self.store)
