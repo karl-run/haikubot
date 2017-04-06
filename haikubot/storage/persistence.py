@@ -33,7 +33,7 @@ class Persistence:
     def __init__(self, db=None):
         if db is None:
             if config.FILE_DB:
-                logging.info('Using file based SQLITE database')
+                logging.info('Using file based SQLITE database: {}'.format(db_location))
                 db = create_engine('sqlite:///{}'.format(db_location),
                                    connect_args={'check_same_thread': False},
                                    poolclass=StaticPool)
