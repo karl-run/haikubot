@@ -97,7 +97,7 @@ class Haikubot:
         if output_list and len(output_list) > 0:
             for output in output_list:
                 if output and 'text' in output and self._at in output['text']:
-                    return output['text'].split(self._at)[1].strip(), \
+                    return output['text'].split(self._at, 1)[1].strip(), \
                            output['channel'], \
                            self.slack.get_username(output['user'])
         return None, None, None

@@ -37,7 +37,7 @@ class CommandsParser:
         elif command.startswith(Commands.LIST_MOD.value):
             response = self._list_mods()
         elif command.startswith(Commands.ADD_HAIKU.value):
-            response = self._add_haiku(command, action_user)
+            response = self._add_haiku(command, action_user, channel)
         elif command.startswith(Commands.DELETE_HAIKU.value):
             response = self._delete_haiku(command, action_user, channel)
         elif command.startswith(Commands.STATS_TOP.value):
@@ -116,7 +116,7 @@ class CommandsParser:
             haikus = self.store.get_by(search, num)
 
         if len(haikus) > 0:
-                self.slack.post_haikus(haikus, channel)
+            self.slack.post_haikus(haikus, channel)
         else:
             self.slack.post_message('Found no haikus by "{}"'.format(search), channel)
 
@@ -191,7 +191,7 @@ class CommandsParser:
 
             self.slack.post_snippet(haikus_simple, channel)
 
-    def _add_haiku(self, command, action_user):
+    def _add_haiku(self, command, action_user, channel):
         haiku_string = command.replace(Commands.ADD_HAIKU.value, '').strip()
         haiku_split = haiku_string.replace('\r', '').split('\n')
         if len(haiku_split) > 3 and is_haiku(haiku_split[0:3]):
@@ -206,7 +206,10 @@ class CommandsParser:
                 except IntegrityError:
                     return "{} tried posting a duplicate haiku, boo!".format(action_user)
                 self.slack.post_haiku_model(haiku)
-                return "{} just added haiku #{}.".format(action_user, haiku.hid)
+                if self.slack.get_channe_name(channel) != config.POST_TO_CHANNEL:
+                    self.slack.post_message("{} just added haiku #{}.".format(action_user, haiku.hid))
+
+                return "Added haiku #{}.".format(haiku.hid)
             else:
                 return "'{}' is not a valid author name".format(haiku_split[3])
         else:

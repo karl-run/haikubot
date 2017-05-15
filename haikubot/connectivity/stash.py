@@ -44,15 +44,17 @@ class Stash(Thread):
             for url in self.urls:
                 try:
                     result = self.fetch(url)
+                    if 'errors' in result:
+                        logging.error('Stash responded with error: ' + result['errors']['message'])
+                        continue
                 except FileNotFoundError as err:
                     logging.error('Debug file not found')
                     raise err
                 except OSError:
                     logging.error('Server not responding: ' + url)
                     continue
-
-                if 'errors' in result:
-                    logging.error('Stash responded with error: ' + result['errors']['message'])
+                except KeyError:
+                    logging.error('Unexpected error from Stash: ' + str(result))
                     continue
 
                 url_id = hashlib.md5(url.replace('?state=MERGED', '').encode('utf-8')).hexdigest()
