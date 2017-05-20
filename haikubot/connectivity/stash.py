@@ -41,27 +41,31 @@ class Stash(Thread):
 
     def run(self):
         while self.alive:
-            for url in self.urls:
-                try:
-                    result = self.fetch(url)
-                    if 'errors' in result:
-                        logging.error('Stash responded with error: ' + result['errors']['message'])
+            try:
+                for url in self.urls:
+                    result = None
+                    try:
+                        result = self.fetch(url)
+                        if 'errors' in result:
+                            logging.error('Stash responded with error: ' + str(result["errors"]))
+                            continue
+                    except FileNotFoundError as err:
+                        logging.error('Debug file not found')
+                        raise err
+                    except OSError:
+                        logging.error('Server not responding: ' + url)
                         continue
-                except FileNotFoundError as err:
-                    logging.error('Debug file not found')
-                    raise err
-                except OSError:
-                    logging.error('Server not responding: ' + url)
-                    continue
-                except KeyError:
-                    logging.error('Unexpected error from Stash: ' + str(result))
-                    continue
+                    except (KeyError, TypeError):
+                        logging.error('Unexpected error from Stash: ' + str(result))
+                        continue
 
-                url_id = hashlib.md5(url.replace('?state=MERGED', '').encode('utf-8')).hexdigest()
-                parsed = parser.parse_stash_response(result, url_id, self.store)
+                    url_id = hashlib.md5(url.replace('?state=MERGED', '').encode('utf-8')).hexdigest()
+                    parsed = parser.parse_stash_response(result, url_id, self.store)
 
-                for haiku in parsed:
-                    self.post_func(haiku['haiku'], haiku['author'], haiku['link'])
+                    for haiku in parsed:
+                        self.post_func(haiku['haiku'], haiku['author'], haiku['link'])
+            except Exception as e:
+                logging.critical('Critical error in Stash polling thread: ' + str(e))
 
             if self.alive:
                 for _ in range(config.STASH_POLL_TIME):
