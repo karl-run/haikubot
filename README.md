@@ -1,6 +1,6 @@
 # Haikubot for Slack
 
-[![Build Status](https://travis-ci.org/hermith/haikubot.svg?branch=master)](https://travis-ci.org/hermith/haikubot)
+[![Build Status](https://travis-ci.org/karl-run/haikubot.svg?branch=develop)](https://travis-ci.org/karl-run/haikubot)
 
 ## Purpose
 To increase your team's productivity, I highly recommend having a requirement that every pull-request
