@@ -77,6 +77,9 @@ class Haikubot:
                     continue
 
                 if command and channel and user:
+                    if user == 'haikubot':
+                        continue
+
                     self.connectionInfo['channel'] = channel
                     self.commands.handle_command(command, channel, user)
 

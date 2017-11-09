@@ -7,6 +7,7 @@ from haikubot.commands.commands import Commands
 from haikubot.model.haiku import Haiku
 from haikubot.utils.color import string_to_color_hex
 from haikubot.utils.haiku_parser import is_haiku
+from haikubot.utils.analyser import get_longest_word_haiku, get_most_words_haiku, get_least_words_haiku
 
 
 def good_user(user):
@@ -27,7 +28,7 @@ class CommandsParser:
     def handle_command(self, command, channel, action_user):
         logging.debug('Command {} recieved from channel {} by user {} in channel {}'.format(command, channel,
                                                                                             action_user, channel))
-        response = "Invalid command. Currently supported commands: " + str(Commands.values())
+        response = "Invalid command. Currently supported commands: " + str(Commands.manpage())
         action_user = action_user.name
 
         if command.startswith(Commands.ADD_MOD.value):
@@ -42,6 +43,15 @@ class CommandsParser:
             response = self._delete_haiku(command, action_user, channel)
         elif command.startswith(Commands.STATS_TOP.value):
             self._stats_top(command, channel)
+            return
+        elif command.startswith(Commands.STATS_LONGEST.value):
+            self._stats_longest(channel)
+            return
+        elif command.startswith(Commands.STATS_MOST.value):
+            self._stats_most(channel)
+            return
+        elif command.startswith(Commands.STATS_FEWEST.value):
+            self._stats_fewest(channel)
             return
         elif command.startswith(Commands.LAST_HAIKU.value):
             self._show_last_haiku(channel)
@@ -163,6 +173,27 @@ class CommandsParser:
             })
 
         self.slack.post_message(attachments, channel)
+
+    def _stats_longest(self, channel):
+        haikus = self.store.get_all_haiku()
+        longest, word = get_longest_word_haiku(haikus)
+
+        self.slack.post_message('Longest word in haiku: "{}"'.format(word), channel)
+        self.slack.post_haiku_model(dict_to_haiku(self.store.get_haiku(longest.id)), channel=channel)
+
+    def _stats_most(self, channel):
+        haikus = self.store.get_all_haiku()
+        longest, number = get_most_words_haiku(haikus)
+
+        self.slack.post_message('Most number of words in haiku: "{}"'.format(number), channel)
+        self.slack.post_haiku_model(dict_to_haiku(self.store.get_haiku(longest.id)), channel=channel)
+
+    def _stats_fewest(self, channel):
+        haikus = self.store.get_all_haiku()
+        longest, number = get_least_words_haiku(haikus)
+
+        self.slack.post_message('Least number of words in haiku: "{}"'.format(number), channel)
+        self.slack.post_haiku_model(dict_to_haiku(self.store.get_haiku(longest.id)), channel=channel)
 
     def _plain_export(self, command, channel):
         search = command.replace(Commands.EXPORT.value, '').strip().replace('#', '')

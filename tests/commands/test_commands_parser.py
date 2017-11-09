@@ -226,6 +226,18 @@ class CommandParserTest(unittest.TestCase):
         self.assertTrue(spy.is_called())
         self.assertEqual(('Haiku #3 by mei:\nhai\n', "test_channel"), spy.args)
 
+    def test_haiku_many_exports(self):
+        spy = Spy()
+        haiku = {'haiku': 'hai', 'author': 'mei', 'link': 'nei', 'id': 3}
+        self.cp.slack.get_channel_info = lambda x: {'error': 'channel_not_found'}
+        self.cp.store.get_all_haiku = lambda: ([haiku] * 1000)
+        self.cp.slack.post_snippet = spy.to_call
+        self.cp._plain_export('export', 'test_channel')
+
+        self.assertTrue(spy.is_called())
+        self.assertEqual(10, spy.times_called)
+
+
     def test_haiku_plain_export_with_search(self):
         spy = Spy()
         haiku = {'haiku': 'hai', 'author': 'nei', 'link': 'nei', 'id': 3}
@@ -251,7 +263,7 @@ class CommandParserTest(unittest.TestCase):
         self.cp.slack.post_message = spy.to_call
         self.cp.handle_command('not good command', 'test_channel', TESTBOY)
 
-        good = "Invalid command. Currently supported commands: " + str(Commands.values())
+        good = "Invalid command. Currently supported commands: " + str(Commands.manpage())
 
         self.assertTrue(spy.is_called())
         self.assertEqual((good, 'test_channel'), spy.args)
@@ -339,4 +351,28 @@ class CommandParserTest(unittest.TestCase):
         self.cp.handle_command('delete haiku #69', 'test_channel', TESTBOY)
 
         self.assertEqual(2, spy.times_called)
+        self.assertTrue(spy.is_called())
+
+    def test_handle_command_stats_most_words(self):
+        spy = Spy()
+        self.cp._stats_most = spy.to_call
+        self.cp.handle_command('stats most', 'test_channel', TESTBOY)
+
+        self.assertEqual(1, spy.times_called)
+        self.assertTrue(spy.is_called())
+
+    def test_handle_command_stats_fewest_words(self):
+        spy = Spy()
+        self.cp._stats_fewest = spy.to_call
+        self.cp.handle_command('stats fewest', 'test_channel', TESTBOY)
+
+        self.assertEqual(1, spy.times_called)
+        self.assertTrue(spy.is_called())
+
+    def test_handle_command_stats_longest_word(self):
+        spy = Spy()
+        self.cp._stats_longest = spy.to_call
+        self.cp.handle_command('stats longest', 'test_channel', TESTBOY)
+
+        self.assertEqual(1, spy.times_called)
         self.assertTrue(spy.is_called())
