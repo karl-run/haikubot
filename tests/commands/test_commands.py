@@ -8,5 +8,5 @@ class CommandsTest(unittest.TestCase):
         values = Commands.values()
         good = ['add mod', 'remove mod', 'list mod', 'show last', 'show',
                 'show from', 'export', 'stats top', 'stats longest', 'stats fewest', 'stats most',
-                'add haiku', 'delete haiku']
+                'add haiku', 'delete haiku', 'wordcloud']
         self.assertEqual(good, values)

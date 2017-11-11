@@ -1,3 +1,8 @@
+import re
+
+from haikubot.utils.cleaning_blacklist import camel_case_clean, clean_characters
+
+
 def get_longest_word_haiku(haikus):
     longest = ''
     longest_haiku = None
@@ -13,37 +18,48 @@ def get_longest_word_haiku(haikus):
 def get_most_words_haiku(haikus):
     most = 0
     most_words_haiku = None
+    most_ids = []
     for haiku in haikus:
         number = _haiku_to_number_of_words(haiku)
-        if number > most:
+        if number >= most:
+            if number > most:
+                most_ids.clear()
             most = number
             most_words_haiku = haiku
+            most_ids.append(haiku['id'])
 
-    return most_words_haiku, most
+    most_ids.remove(most_words_haiku['id'])
+
+    return most_words_haiku, most, most_ids
 
 
 def get_least_words_haiku(haikus):
-    most = 999
-    most_words_haiku = None
+    least = 999
+    least_words_haiku = None
+    least_ids = []
     for haiku in haikus:
         number = _haiku_to_number_of_words(haiku)
-        if number < most:
-            most = number
-            most_words_haiku = haiku
+        if number <= least:
+            if number < least:
+                least_ids.clear()
+            least = number
+            least_words_haiku = haiku
+            least_ids.append(haiku['id'])
 
-    return most_words_haiku, most
+    least_ids.remove(least_words_haiku['id'])
+
+    return least_words_haiku, least, least_ids
 
 
 def _haiku_to_longest_word(haiku):
-    clean = _clean_haiku(haiku['haiku']).split(' ')
-    return max(clean, key=len)
+    split = list(filter(len, camel_case_clean(_clean_haiku(haiku['haiku'])).split(' ')))
+    return max(split, key=len)
 
 
 def _haiku_to_number_of_words(haiku):
-    split = _clean_haiku(haiku['haiku']).split(' ')
+    split = list(filter(len, _clean_haiku(haiku['haiku']).split(' ')))
     return len(split)
 
 
 def _clean_haiku(haiku):
-    return haiku.replace('\r\n', ' ').replace('\n', ' ') \
-        .replace('.', '').replace(',', '').replace('  ', ' ').strip()
+    return clean_characters(haiku)

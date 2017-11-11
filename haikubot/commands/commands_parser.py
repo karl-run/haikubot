@@ -8,6 +8,7 @@ from haikubot.model.haiku import Haiku
 from haikubot.utils.color import string_to_color_hex
 from haikubot.utils.haiku_parser import is_haiku
 from haikubot.utils.analyser import get_longest_word_haiku, get_most_words_haiku, get_least_words_haiku
+from haikubot.utils.wordclouder import generate_cloud
 
 
 def good_user(user):
@@ -64,6 +65,9 @@ class CommandsParser:
             return
         elif command.startswith(Commands.EXPORT.value):
             self._plain_export(command, channel)
+            return
+        elif command.startswith(Commands.WORDCLOUD.value):
+            self._wordcloud(command, channel)
             return
 
         self.slack.post_message(response, channel)
@@ -183,17 +187,25 @@ class CommandsParser:
 
     def _stats_most(self, channel):
         haikus = self.store.get_all_haiku()
-        longest, number = get_most_words_haiku(haikus)
+        longest, number, ids = get_most_words_haiku(haikus)
 
-        self.slack.post_message('Most number of words in haiku: "{}"'.format(number), channel)
+        self.slack.post_message('Most number of words in haiku: "{}", most recent:'.format(number), channel)
         self.slack.post_haiku_model(dict_to_haiku(self.store.get_haiku(longest.id)), channel=channel)
+        if len(ids) > 0:
+            self.slack.post_message('Older haikus with same amount of words: #{}'.format(', #'.join(str(i) for i in ids)), channel)
+        else:
+            self.slack.post_message('This is the only haiku with this number of words.', channel)
 
     def _stats_fewest(self, channel):
         haikus = self.store.get_all_haiku()
-        longest, number = get_least_words_haiku(haikus)
+        longest, number, ids = get_least_words_haiku(haikus)
 
         self.slack.post_message('Least number of words in haiku: "{}"'.format(number), channel)
         self.slack.post_haiku_model(dict_to_haiku(self.store.get_haiku(longest.id)), channel=channel)
+        if len(ids) > 0:
+            self.slack.post_message('Older haikus with same amount of words: #{}'.format(', #'.join(str(i) for i in ids)), channel)
+        else:
+            self.slack.post_message('This is the only haiku with this number of words.', channel)
 
     def _plain_export(self, command, channel):
         search = command.replace(Commands.EXPORT.value, '').strip().replace('#', '')
@@ -221,6 +233,31 @@ class CommandsParser:
                 haikus_simple += '\n'
 
             self.slack.post_snippet(haikus_simple, channel)
+
+    def _wordcloud(self, command, channel):
+        search = command.replace(Commands.WORDCLOUD.value, '').strip().replace('#', '')
+        if len(search) < 1:
+            logging.debug('Found no author, making wordcloud for everything.')
+            haikus = self.store.get_all_haiku()
+            search = 'everyone'
+        elif len(search) < 3:
+            logging.debug('Found search parameter but not long enough, aborting.')
+            self.slack.post_message('"{}" is not descriptive enough'.format(search), channel)
+            return
+        else:
+            logging.debug('Found author, looking for haiku by {}.'.format(search))
+            haikus = self.store.get_by(search, num=-1)
+            if len(haikus) < 1:
+                self.slack.post_message('Found no haikus by "{}"'.format(search), channel)
+                return
+
+        haiku_blob = ''.join([str(haiku['haiku']) for haiku in haikus])
+        if search == 'everyone':
+            image = generate_cloud(haiku_blob)
+        else:
+            image = generate_cloud(haiku_blob, string_to_color_hex(haikus[0]['author']))
+
+        self.slack.post_image(image, search, channel)
 
     def _add_haiku(self, command, action_user, channel):
         haiku_string = command.replace(Commands.ADD_HAIKU.value, '').strip()

@@ -83,6 +83,15 @@ class Slack:
         )
         return result['ok']
 
+    def post_image(self, image, author, channel):
+        result = self.sc.api_call(
+            'files.upload',
+            filename='Wordcloud for {}, {}.png'.format(author, str(datetime.today())),
+            file=image,
+            channels=channel,
+        )
+        return result['ok']
+
     def get_username(self, uid):
         return self.sc.server.users.find(uid)
 

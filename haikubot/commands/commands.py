@@ -15,6 +15,7 @@ class Commands(Enum):
     STATS_MOST = 'stats most'
     ADD_HAIKU = 'add haiku'
     DELETE_HAIKU = 'delete haiku'
+    WORDCLOUD = 'wordcloud'
 
     @staticmethod
     def values():
@@ -40,4 +41,6 @@ class Commands(Enum):
     9. haiku with longest word:      @haikubot stats longest
    10. haiku with fewest words:      @haikubot stats fewest
    11. haiku with most words:        @haikubot stats most
+   12. wordcloud of all haiku:       @haikubot wordcloud
+   12. wordcloud from single author: @haikubot wordcloud <author>
 ```"""
