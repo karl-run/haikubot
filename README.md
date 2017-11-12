@@ -32,6 +32,8 @@ Haikus are posted directly to the channel configured, but there are also some co
 
    Will post a snippet of all haikus in plaintext, use with `@botname export Danny` to export only haikus by single contributor.
 
+**Consult `commands.py` for full list of commands.**
+
 ## Prerequisites
 ### Running locally
 #### For running with local storage
@@ -64,9 +66,6 @@ Haikus are posted directly to the channel configured, but there are also some co
 2. Run with coverage: `py.test --cov=./bot --cov-report term-missing`
 
 ## TODO
-* Add commands for making adding and deleting haikus through the bot
-* Use ORM objects instead of working with dicts (and clean up how haikus are passed around)
-* Add a ["field"](https://api.slack.com/docs/message-attachments) or two to the slack message with info like repository.
 * Add rating functionality. E.g: "@haikubot rate #69 80 points". Rating is stored and you can pull up best haikus. E.g: "@haikubot top 3 weekly"
 
 ## Fork it!

@@ -27,21 +27,22 @@ class Commands(Enum):
     1. show newest haiku:            @haikubot show last
     2. show specific haiku:          @haikubot show #69
     3. show all haiku from author:   @haikubot show from <author>
-    4. delete haiku (only for mods): @haikubot delete haiku #69
-    5. add haiku manually:
+    4. show # haiku from author:     @haikubot show from <amount> <author>
+    5. delete haiku (only for mods): @haikubot delete haiku #69
+    6. add haiku manually:
         @haikubot add haiku
         haiku on lines
         three to five and remember
         add author on six
         Author Andersen
         Yes (only to confirm new authors)
-    6. export all haikus:            @haikubot export
-    7. export from specific user:    @haikubot export <author>
-    8. show haiku statistics:        @haikubot stats top
-    9. haiku with longest word:      @haikubot stats longest
-   10. haiku with fewest words:      @haikubot stats fewest
-   11. haiku with most words:        @haikubot stats most
-   12. wordcloud of all haiku:       @haikubot wordcloud
-   12. wordcloud from single author: @haikubot wordcloud <author>
-   12. wordcloud from last 3 weeks:  @haikubot wordcloud sprint
+    7. export all haikus:            @haikubot export
+    8. export from specific user:    @haikubot export <author>
+    9. show haiku statistics:        @haikubot stats top
+   10. haiku with longest word:      @haikubot stats longest
+   11. haiku with fewest words:      @haikubot stats fewest
+   12. haiku with most words:        @haikubot stats most
+   13. wordcloud of all haiku:       @haikubot wordcloud
+   14. wordcloud from single author: @haikubot wordcloud <author>
+   15. wordcloud from last 3 weeks:  @haikubot wordcloud sprint
 ```"""
