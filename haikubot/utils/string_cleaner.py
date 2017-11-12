@@ -24,8 +24,10 @@ _COMMON_WORDS_SIMPLE = [
     'har',
     'hun',
     'hva',
+    'ikke',
     'jeg',
     'kan',
+    'litt',
     'med',
     'meg',
     'men',
@@ -60,11 +62,11 @@ def clean_characters(text):
     return re.sub(' +', ' ', re.compile("[^\w']|_").sub(' ', text))
 
 
-def _replace_all(text, remove, sub_with=" "):
-    regex = re.compile(r'(' + remove + r')', flags=re.IGNORECASE)
-    return re.sub(' +', ' ', regex.sub(sub_with, regex.sub(sub_with, text)))
-
-
 def camel_case_clean(identifier):
     matches = re.finditer('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
     return ' '.join([m.group(0) for m in matches])
+
+
+def _replace_all(text, remove, sub_with=" "):
+    regex = re.compile(r'(' + remove + r')', flags=re.IGNORECASE)
+    return re.sub(' +', ' ', regex.sub(sub_with, regex.sub(sub_with, text)))

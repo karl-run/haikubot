@@ -1,6 +1,4 @@
-import re
-
-from haikubot.utils.cleaning_blacklist import camel_case_clean, clean_characters
+from haikubot.utils.string_cleaner import camel_case_clean, clean_characters
 
 
 def get_longest_word_haiku(haikus):
@@ -52,14 +50,10 @@ def get_least_words_haiku(haikus):
 
 
 def _haiku_to_longest_word(haiku):
-    split = list(filter(len, camel_case_clean(_clean_haiku(haiku['haiku'])).split(' ')))
+    split = list(filter(len, camel_case_clean(clean_characters(haiku['haiku'])).split(' ')))
     return max(split, key=len)
 
 
 def _haiku_to_number_of_words(haiku):
-    split = list(filter(len, _clean_haiku(haiku['haiku']).split(' ')))
+    split = list(filter(len, clean_characters(haiku['haiku']).split(' ')))
     return len(split)
-
-
-def _clean_haiku(haiku):
-    return clean_characters(haiku)

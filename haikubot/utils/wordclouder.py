@@ -3,7 +3,7 @@ from io import BytesIO
 from matplotlib.colors import LinearSegmentedColormap
 from wordcloud import WordCloud
 
-from haikubot.utils.cleaning_blacklist import clean_characters, clean_words, camel_case_clean
+from haikubot.utils.string_cleaner import clean_characters, clean_words, camel_case_clean
 from haikubot.utils.color import complementary_colormap
 
 
