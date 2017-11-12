@@ -236,9 +236,19 @@ class CommandsParser:
 
     def _wordcloud(self, command, channel):
         search = command.replace(Commands.WORDCLOUD.value, '').strip().replace('#', '')
+        is_sprint = search == 'sprint'
+        if is_sprint:
+            search = ''
+
         if len(search) < 1:
             logging.debug('Found no author, making wordcloud for everything.')
-            haikus = self.store.get_all_haiku()
+            if not is_sprint:
+                haikus = self.store.get_all_haiku()
+            else:
+                haikus = self.store.get_all_haiku_weeks(12)
+                if len(haikus) == 0:
+                    self.slack.post_message("Couldn't find any haikus from the last 3 weeks.", channel)
+                    return
             search = 'everyone'
         elif len(search) < 3:
             logging.debug('Found search parameter but not long enough, aborting.')
@@ -250,6 +260,8 @@ class CommandsParser:
             if len(haikus) < 1:
                 self.slack.post_message('Found no haikus by "{}"'.format(search), channel)
                 return
+
+        self.slack.post_message('Creating wordcloud from {} haiku.'.format(len(haikus)), channel)
 
         haiku_blob = ''.join([str(haiku['haiku']) for haiku in haikus])
         if search == 'everyone':

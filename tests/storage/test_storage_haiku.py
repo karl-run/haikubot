@@ -1,3 +1,5 @@
+from datetime import timedelta, datetime
+
 from sqlalchemy import create_engine
 
 from haikubot.storage.persistence import Persistence
@@ -108,4 +110,20 @@ class StorageHaikuTest(unittest.TestCase):
         self.store.put_haiku(EX_HAIKU + '3', 'Carl Two')
         self.store.put_haiku(EX_HAIKU + '4', 'Karl Three')
         haiku = self.store.get_all_haiku()
+        self.assertEqual(4, len(haiku))
+
+    def test_get_all_haiku_within_3(self):
+        self.store.put_haiku(EX_HAIKU + '1', 'Karl One', date=datetime.now() - timedelta(weeks=2))
+        self.store.put_haiku(EX_HAIKU + '2', 'Karl One', date=datetime.now() - timedelta(weeks=3) + timedelta(days=1))
+        self.store.put_haiku(EX_HAIKU + '3', 'Carl Two', date=datetime.now() - timedelta(weeks=4))
+        self.store.put_haiku(EX_HAIKU + '4', 'Karl Three', date=datetime.now() - timedelta(weeks=5))
+        haiku = self.store.get_all_haiku_weeks(3)
+        self.assertEqual(2, len(haiku))
+
+    def test_get_all_haiku_within_6(self):
+        self.store.put_haiku(EX_HAIKU + '1', 'Karl One', date=datetime.now() - timedelta(weeks=2))
+        self.store.put_haiku(EX_HAIKU + '2', 'Karl One', date=datetime.now() - timedelta(weeks=3) + timedelta(days=1))
+        self.store.put_haiku(EX_HAIKU + '3', 'Carl Two', date=datetime.now() - timedelta(weeks=4))
+        self.store.put_haiku(EX_HAIKU + '4', 'Karl Three', date=datetime.now() - timedelta(weeks=5))
+        haiku = self.store.get_all_haiku_weeks(6)
         self.assertEqual(4, len(haiku))

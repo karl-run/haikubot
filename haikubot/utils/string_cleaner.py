@@ -5,6 +5,7 @@ _COMMON_WORDS_SIMPLE = [
     'av',
     'ble',
     'blir',
+    'bli',
     'da',
     'de',
     'deg',
@@ -13,11 +14,13 @@ _COMMON_WORDS_SIMPLE = [
     'du',
     'eller',
     'en',
+    'enn',
     'er',
     'et',
     'etter',
     'for',
     'fra',
+    'få',
     'ha',
     'hadde',
     'han',
@@ -26,12 +29,15 @@ _COMMON_WORDS_SIMPLE = [
     'hva',
     'ikke',
     'jeg',
+    'jo',
     'kan',
+    'la',
     'litt',
     'med',
     'meg',
     'men',
     'må',
+    'nok',
     'nå',
     'og',
     'om',
@@ -42,15 +48,16 @@ _COMMON_WORDS_SIMPLE = [
     'som',
     'så',
     'til',
+    'tar',
     'ut',
     'var',
     'vi',
     'vil',
+    'vel',
     'å',
 ]
 
 COMMON_WORDS = list(map(lambda s: '\\b{}\\b'.format(s), _COMMON_WORDS_SIMPLE))
-wordcloud_blacklist = dict(zip(COMMON_WORDS, [' '] * len(COMMON_WORDS)))
 
 
 def clean_words(text):

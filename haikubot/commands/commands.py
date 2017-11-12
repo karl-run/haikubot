@@ -43,4 +43,5 @@ class Commands(Enum):
    11. haiku with most words:        @haikubot stats most
    12. wordcloud of all haiku:       @haikubot wordcloud
    12. wordcloud from single author: @haikubot wordcloud <author>
+   12. wordcloud from last 3 weeks:  @haikubot wordcloud sprint
 ```"""
