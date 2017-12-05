@@ -245,9 +245,9 @@ class CommandsParser:
             if not is_sprint:
                 haikus = self.store.get_all_haiku()
             else:
-                haikus = self.store.get_all_haiku_weeks(12)
+                haikus = self.store.get_all_haiku_weeks(4)
                 if len(haikus) == 0:
-                    self.slack.post_message("Couldn't find any haikus from the last 3 weeks.", channel)
+                    self.slack.post_message("Couldn't find any haikus from the last 4 weeks.", channel)
                     return
             search = 'everyone'
         elif len(search) < 3:
