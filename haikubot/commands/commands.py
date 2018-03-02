@@ -31,9 +31,9 @@ class Commands(Enum):
     5. delete haiku (only for mods): @haikubot delete haiku #69
     6. add haiku manually:
         @haikubot add haiku
-        haiku on lines
-        three to five and remember
-        add author on six
+        haiku on line two
+        three and four. Do remember
+        author on line six
         Author Andersen
         Yes (only to confirm new authors)
     7. export all haikus:            @haikubot export
