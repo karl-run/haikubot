@@ -1,11 +1,16 @@
 import logging
 
+def sort_by_created(pullRequest):
+  return pullRequest['createdDate']
 
 def parse_stash_response(response, repo_id, store=None):
     logging.debug('Parsing stash response: ' + str(response))
     parsed_haikus = []
 
-    for val in response['values']:
+    pullRequests = response['values']
+    pullRequests.sort(key=sort_by_created)
+
+    for val in pullRequests:
         if store is not None:
             if store.is_checked('{}{}'.format(repo_id, val['id'])):
                 logging.debug('Response {} has been parsed before, skipping'.format(val['id']))

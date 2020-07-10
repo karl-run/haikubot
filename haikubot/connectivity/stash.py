@@ -16,7 +16,7 @@ def make_urls():
     for project in config.STASH_REPOSITORIES:
         for repo in project['REPOSITORIES']:
             flat_list.append(
-                "{}rest/api/1.0/projects/{}/repos/{}/pull-requests".format(url, project['REPO_KEY'], repo)
+                "{}rest/api/1.0/projects/{}/repos/{}/pull-requests?order=NEWEST&state=ALL".format(url, project['REPO_KEY'], repo)
             )
 
     logging.debug('URLs configured: ' + str(flat_list))
@@ -46,6 +46,7 @@ class Stash(Thread):
                     result = None
                     try:
                         result = self.fetch(url)
+
                         if 'errors' in result:
                             logging.error('Stash responded with error: ' + str(result["errors"]))
                             continue
@@ -77,6 +78,7 @@ class Stash(Thread):
 
     def fetch(self, url):
         response = requests.get(url, headers=config.STASH_HEADERS, verify=config.SSL_VERIFY)
+        
         return json.loads(response.text)
 
     def stop(self):
