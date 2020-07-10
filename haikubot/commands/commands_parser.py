@@ -1,5 +1,6 @@
 import logging
 
+from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 
 from haikubot import config
@@ -9,6 +10,7 @@ from haikubot.utils.color import string_to_color_hex
 from haikubot.utils.haiku_parser import is_haiku
 from haikubot.utils.analyser import get_longest_word_haiku, get_most_words_haiku, get_least_words_haiku
 from haikubot.utils.wordclouder import generate_cloud
+from haikubot.utils.timeliner import generate_timeline
 
 
 def good_user(user):
@@ -53,6 +55,9 @@ class CommandsParser:
             return
         elif command.startswith(Commands.STATS_FEWEST.value):
             self._stats_fewest(channel)
+            return
+        elif command.startswith(Commands.STATS_TIMELINE.value):
+            self._stats_timeline(command,channel)
             return
         elif command.startswith(Commands.LAST_HAIKU.value):
             self._show_last_haiku(channel)
@@ -245,9 +250,9 @@ class CommandsParser:
             if not is_sprint:
                 haikus = self.store.get_all_haiku()
             else:
-                haikus = self.store.get_all_haiku_weeks(4)
+                haikus = self.store.get_all_haiku_weeks(3)
                 if len(haikus) == 0:
-                    self.slack.post_message("Couldn't find any haikus from the last 4 weeks.", channel)
+                    self.slack.post_message("Couldn't find any haikus from the last 3 weeks.", channel)
                     return
             search = 'everyone'
         elif len(search) < 3:
@@ -269,7 +274,32 @@ class CommandsParser:
         else:
             image = generate_cloud(haiku_blob, string_to_color_hex(haikus[0]['author']))
 
-        self.slack.post_image(image, search, channel)
+        filename = 'Wordcloud for {}, {}.png'.format(search, str(datetime.today()))
+
+        self.slack.post_image(image, filename, channel)
+
+    def _stats_timeline(self, command, channel):
+        search = command.replace(Commands.STATS_TIMELINE.value, '').strip().replace('#', '')
+        anonymous = "anonymous" in search
+        is_sprint = 'sprint' in search 
+        if is_sprint:
+            search = ''
+
+        if not is_sprint:
+            haikus = self.store.get_all_haiku()
+        else:
+            haikus = self.store.get_all_haiku_weeks(3)
+            if len(haikus) == 0:
+                self.slack.post_message("Couldn't find any haikus from the last 3 weeks.", channel)
+                return
+
+        self.slack.post_message('Creating timeline statistics.', channel)
+
+        image = generate_timeline(haikus, anonymous)
+
+        filename = 'Timeline until {}.png'.format(str(datetime.today()))
+
+        self.slack.post_image(image, filename, channel)
 
     def _add_haiku(self, command, action_user, channel):
         haiku_string = command.replace(Commands.ADD_HAIKU.value, '').strip()

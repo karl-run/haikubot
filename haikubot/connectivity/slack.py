@@ -83,10 +83,10 @@ class Slack:
         )
         return result['ok']
 
-    def post_image(self, image, author, channel):
+    def post_image(self, image, filename, channel):
         result = self.sc.api_call(
             'files.upload',
-            filename='Wordcloud for {}, {}.png'.format(author, str(datetime.today())),
+            filename=filename,
             file=image,
             channels=channel,
         )
