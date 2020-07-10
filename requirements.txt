@@ -4,3 +4,4 @@ colorharmonies
 slackclient
 sqlalchemy
 wordcloud
+websocket
