@@ -13,6 +13,7 @@ class Commands(Enum):
     STATS_LONGEST = 'stats longest'
     STATS_FEWEST = 'stats fewest'
     STATS_MOST = 'stats most'
+    STATS_TIMELINE = 'stats timeline'
     ADD_HAIKU = 'add haiku'
     DELETE_HAIKU = 'delete haiku'
     WORDCLOUD = 'wordcloud'
@@ -42,7 +43,9 @@ class Commands(Enum):
    10. haiku with longest word:      @haikubot stats longest
    11. haiku with fewest words:      @haikubot stats fewest
    12. haiku with most words:        @haikubot stats most
-   13. wordcloud of all haiku:       @haikubot wordcloud
-   14. wordcloud from single author: @haikubot wordcloud <author>
-   15. wordcloud from last 3 weeks:  @haikubot wordcloud sprint
+   13. timeline stats:               @haikubot stats timeline
+   14. timeline stats from sprint:   @haikubot stats timeline sprint
+   15. wordcloud of all haiku:       @haikubot wordcloud
+   16. wordcloud from single author: @haikubot wordcloud <author>
+   17. wordcloud from sprint:        @haikubot wordcloud sprint
 ```"""
